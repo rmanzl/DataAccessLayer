@@ -5,17 +5,34 @@ using System.Text;
 namespace DataAccessLayer.Query
 {
 
-    public class ValueCompareCondition : QueryCondition
+    /// <inheritdoc />
+    /// <summary>
+    /// Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit einem angegebenen Wert dar
+    /// </summary>
+    public sealed class ValueCompareCondition : QueryCondition
     {
 
+        /// <inheritdoc />
         public override ConditionType ConditionType => ConditionType.ValueCompare;
 
+        /// <summary>
+        /// Die Angabe des Tabellennamens
+        /// </summary>
         public string TableName { get; set; }
 
+        /// <summary>
+        /// Die Angabe des Spaltennamens
+        /// </summary>
         public string AttributeName { get; set; }
 
+        /// <summary>
+        /// Die Angabe des Wertes
+        /// </summary>
         public object Value { get; set; }
 
+        /// <summary>
+        /// Der Vergleichsoperator, der für einen Wert- oder Spaltenvergleich verwendet werden soll
+        /// </summary>
         public Operator Operator { get; set; }
 
         internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters, string tableName)

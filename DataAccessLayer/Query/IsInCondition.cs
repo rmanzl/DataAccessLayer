@@ -5,17 +5,34 @@ using System.Text;
 namespace DataAccessLayer.Query
 {
 
-    public class IsInCondition : QueryCondition
+    /// <inheritdoc />
+    /// <summary>
+    /// Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit angegebenen Werten dar
+    /// </summary>
+    public sealed class IsInCondition : QueryCondition
     {
 
+        /// <inheritdoc />
         public override ConditionType ConditionType => ConditionType.ValueCompare;
 
+        /// <summary>
+        /// Die Angabe des Tabellennamens
+        /// </summary>
         public string TableName { get; set; }
 
+        /// <summary>
+        /// Die Angabe des Spaltennamens
+        /// </summary>
         public string AttributeName { get; set; }
 
+        /// <summary>
+        /// Die Angabe der Werte, auf welche geprüft werden soll
+        /// </summary>
         public List<object> Values { get; set; }
 
+        /// <summary>
+        /// Gibt an, ob der Sapltenwert in den angebenen Werten enthalten sein muss, oder ob er nicht enthalten sein darf
+        /// </summary>
         public bool ShouldBeIn { get; set; }
 
         internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters, string tableName)

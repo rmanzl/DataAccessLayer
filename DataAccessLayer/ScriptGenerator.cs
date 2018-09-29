@@ -7,7 +7,7 @@ using DataAccessLayer.Query;
 namespace DataAccessLayer
 {
     
-    public class ScriptGenerator<T>
+    internal class ScriptGenerator<T>
         where T : IEntity, new()
     {
 

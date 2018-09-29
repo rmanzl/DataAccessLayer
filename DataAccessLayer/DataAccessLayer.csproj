@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>RobinManzl.DataAccessLayer</AssemblyName>
+    <Authors>Robin Manzl</Authors>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\rm\Documents\Visual Studio 2017\Projects\RobinManzl\DataAccessLayer\DataAccessLayer\bin\Debug\RobinManzl.DataAccessLayer.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

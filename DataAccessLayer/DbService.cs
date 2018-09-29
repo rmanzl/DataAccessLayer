@@ -8,6 +8,12 @@ using DataAccessLayer.Query;
 namespace DataAccessLayer
 {
     
+    /// <summary>
+    /// Diese Klasse kann verwendet werden, um Daten aus einer Datenbank auszulesen und zu ändern
+    /// </summary>
+    /// <typeparam name="T">
+    /// Die Klasse gibt an, für welche Tabelle Daten ausgelesen werden sollen
+    /// </typeparam>
     public class DbService<T>
         where T : IEntity, new()
     {
@@ -22,8 +28,20 @@ namespace DataAccessLayer
 
         private readonly EntityParser<T> _entityParser;
 
+        /// <summary>
+        /// Beinhaltet die zuletzt generierte Fehlermeldung, sofern eine existiert
+        /// </summary>
         public string LastErrorMessage { get; private set; }
         
+        /// <summary>
+        /// Erstellt eine neue Instanz eines DbServices für eine bestimmte Entity-Klasse
+        /// </summary>
+        /// <param name="connection">
+        /// Die SqlConnection, welche für die Datenbank-Verbindungen verwendet wird
+        /// </param>
+        /// <param name="isView">
+        /// Gibt an, ob es sich um eine View handelt, falls ja, können nur Daten abgefragt und nicht geändert werden
+        /// </param>
         public DbService(SqlConnection connection, bool isView = false)
         {
             _lock = new object();
@@ -45,6 +63,15 @@ namespace DataAccessLayer
                              .ToList();
         }
 
+        /// <summary>
+        /// Frägt eine Zeile der Tabelle anhand ihres Primärschlüssels ab
+        /// </summary>
+        /// <param name="id">
+        /// Der Wert des Primärschlüsselss
+        /// </param>
+        /// <returns>
+        /// Gibt die gefundene Zeile als Objekt zurück
+        /// </returns>
         public T GetEntityById(int id)
         {
             List<T> entities = GetEntities(new ValueCompareCondition
@@ -57,6 +84,21 @@ namespace DataAccessLayer
             return entities.Single();
         }
 
+        /// <summary>
+        /// Führt eine Abfrage gegen die Tabelle aus
+        /// </summary>
+        /// <param name="queryCondition">
+        /// Spezifiziert die WHERE-Klausel der Abfrage
+        /// </param>
+        /// <param name="joinStatement">
+        /// Stellt das JOIN Statement dar, welches optional verwendet werden kann, um Daten aus einer anderen Tabelle hinzuzufügen
+        /// </param>
+        /// <param name="options">
+        /// Kann verwendet werden, um Optionen für die Abfrage anzugeben
+        /// </param>
+        /// <returns>
+        /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+        /// </returns>
         public List<T> GetEntities(QueryCondition queryCondition = null, string joinStatement = null, QueryOptions options = null)
         {
             lock (_lock)
@@ -108,6 +150,21 @@ namespace DataAccessLayer
             }
         }
 
+        /// <summary>
+        /// Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die ersten <code>count</code> Zeilen zurück
+        /// </summary>
+        /// <param name="count">
+        /// Gibt an, wieviele Zeilen maximal vom Datenbankserver abgefragt werden sollen
+        /// </param>
+        /// <param name="queryCondition">
+        /// Spezifiziert die WHERE-Klausel der Abfrage
+        /// </param>
+        /// <param name="joinStatement">
+        /// Stellt das JOIN Statement dar, welches optional verwendet werden kann, um Daten aus einer anderen Tabelle hinzuzufügen
+        /// </param>
+        /// <returns>
+        /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+        /// </returns>
         public List<T> GetTopNEntities(int count, QueryCondition queryCondition = null, string joinStatement = null)
         {
             return GetEntities(queryCondition, joinStatement, new QueryOptions()
@@ -116,6 +173,18 @@ namespace DataAccessLayer
             });
         }
 
+        /// <summary>
+        /// Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die erste Zeile zurück
+        /// </summary>
+        /// <param name="queryCondition">
+        /// Spezifiziert die WHERE-Klausel der Abfrage
+        /// </param>
+        /// <param name="joinStatement">
+        /// Stellt das JOIN Statement dar, welches optional verwendet werden kann, um Daten aus einer anderen Tabelle hinzuzufügen
+        /// </param>
+        /// <returns>
+        /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+        /// </returns>
         public T GetFirstEntity(QueryCondition queryCondition = null, string joinStatement = null)
         {
             return GetEntities(queryCondition, joinStatement, new QueryOptions()
@@ -124,6 +193,18 @@ namespace DataAccessLayer
             }).First();
         }
 
+        /// <summary>
+        /// Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die erste Zeile zurück
+        /// </summary>
+        /// <param name="queryCondition">
+        /// Spezifiziert die WHERE-Klausel der Abfrage
+        /// </param>
+        /// <param name="joinStatement">
+        /// Stellt das JOIN Statement dar, welches optional verwendet werden kann, um Daten aus einer anderen Tabelle hinzuzufügen
+        /// </param>
+        /// <returns>
+        /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+        /// </returns>
         public T GetFirstOrDefaultEntity(QueryCondition queryCondition = null, string joinStatement = null)
         {
             return GetEntities(queryCondition, joinStatement, new QueryOptions()
@@ -132,6 +213,15 @@ namespace DataAccessLayer
             }).FirstOrDefault();
         }
 
+        /// <summary>
+        /// Diese Methode kann verwendet werden, um eine Zeile in der Datenbank anzulegen
+        /// </summary>
+        /// <param name="entity">
+        /// Das anzulegende Objekt
+        /// </param>
+        /// <returns>
+        /// Gibt an, ob der Vorgang erfolgreich war
+        /// </returns>
         public bool InsertEntity(T entity)
         {
             if (_isView)
@@ -169,6 +259,15 @@ namespace DataAccessLayer
             }
         }
 
+        /// <summary>
+        /// Diese Methode kann verwendet werden, um eine Zeile in der Datenbank anzupassen
+        /// </summary>
+        /// <param name="entity">
+        /// Das anzupassende Objekt
+        /// </param>
+        /// <returns>
+        /// Gibt an, ob der Vorgang erfolgreich war
+        /// </returns>
         public bool UpdateEntity(T entity)
         {
             if (_isView)
@@ -226,6 +325,15 @@ namespace DataAccessLayer
             }
         }
 
+        /// <summary>
+        /// Diese Methode kann verwendet werden, um eine Zeile in der Datenbank zu löschen
+        /// </summary>
+        /// <param name="entityId">
+        /// Der Wert des Primärschlüssels des zu löschenden Objektes
+        /// </param>
+        /// <returns>
+        /// Gibt an, ob der Vorgang erfolgreich war
+        /// </returns>
         public bool DeleteEntity(int entityId)
         {
             if (_isView)
@@ -261,10 +369,7 @@ namespace DataAccessLayer
                 }
             }
         }
-
-        /// <summary>
-        /// Formatiert die Logging-Message aus einem SqlCommand-Objekt
-        /// </summary>
+        
         private string GenerateLoggingMessage(SqlCommand command)
         {
             var message = "Execute statement: {";

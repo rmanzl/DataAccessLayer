@@ -6,7 +6,7 @@ using System.Reflection;
 namespace DataAccessLayer
 {
     
-    public class EntityParser<T>
+    internal class EntityParser<T>
         where T : IEntity, new()
     {
 

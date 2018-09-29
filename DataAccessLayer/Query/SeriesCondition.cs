@@ -4,13 +4,24 @@ using System.Text;
 namespace DataAccessLayer.Query
 {
 
-    public class SeriesCondition : QueryCondition
+    /// <inheritdoc />
+    /// <summary>
+    /// Stellt eine logische Verkettung mehrerer Abfrageknoten dar
+    /// </summary>
+    public sealed class SeriesCondition : QueryCondition
     {
 
-        public override ConditionType ConditionType => ConditionType.Conjunktion;
+        /// <inheritdoc />
+        public override ConditionType ConditionType => ConditionType.Concatenation;
 
+        /// <summary>
+        /// Der Knoten, welche für eine Verkettung verwendet werden sollen
+        /// </summary>
         public List<QueryCondition> Conditions { get; set; }
 
+        /// <summary>
+        /// Der logische Operator, welcher für die Verkettung verwendet werden soll
+        /// </summary>
         public LogicalOperator LogicalOperator { get; set; }
 
         internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters, string tableName)
