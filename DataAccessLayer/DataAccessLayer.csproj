@@ -5,6 +5,8 @@
     <AssemblyName>RobinManzl.DataAccessLayer</AssemblyName>
     <Authors>Robin Manzl</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RootNamespace>RobinManzl.DataAccessLayer</RootNamespace>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

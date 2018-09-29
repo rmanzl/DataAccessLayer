@@ -1,5 +1,5 @@
 ﻿
-namespace DataAccessLayer
+namespace RobinManzl.DataAccessLayer
 {
     
     /// <summary>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Reflection;
 
-namespace DataAccessLayer
+namespace RobinManzl.DataAccessLayer
 {
     
     internal class EntityParser<T>

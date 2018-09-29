@@ -1,5 +1,5 @@
 ﻿
-namespace DataAccessLayer.Query
+namespace RobinManzl.DataAccessLayer.Query
 {
 
     internal static class OperatorExtensions

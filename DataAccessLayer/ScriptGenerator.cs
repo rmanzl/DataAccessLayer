@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using DataAccessLayer.Query;
+using RobinManzl.DataAccessLayer.Query;
 
-namespace DataAccessLayer
+namespace RobinManzl.DataAccessLayer
 {
     
     internal class ScriptGenerator<T>

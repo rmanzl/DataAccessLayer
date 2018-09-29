@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
-using DataAccessLayer.Query;
+using RobinManzl.DataAccessLayer.Query;
 
-namespace DataAccessLayer
+namespace RobinManzl.DataAccessLayer
 {
     
     /// <summary>

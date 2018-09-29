@@ -1,4 +1,4 @@
-﻿namespace DataAccessLayer.Query
+﻿namespace RobinManzl.DataAccessLayer.Query
 {
 
     /// <summary>

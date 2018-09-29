@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataAccessLayer
+namespace RobinManzl.DataAccessLayer
 {
     
     /// <inheritdoc />
