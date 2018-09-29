@@ -24,6 +24,12 @@ namespace RobinManzl.DataAccessLayer
 
         private readonly bool _isView;
 
+        private readonly string _insertProcedure;
+
+        private readonly string _updateProcedure;
+
+        private readonly string _deleteProcedure;
+
         private readonly ScriptGenerator<T> _scriptGenerator;
 
         private readonly EntityParser<T> _entityParser;
@@ -32,7 +38,7 @@ namespace RobinManzl.DataAccessLayer
         /// Beinhaltet die zuletzt generierte Fehlermeldung, sofern eine existiert
         /// </summary>
         public string LastErrorMessage { get; private set; }
-        
+
         /// <summary>
         /// Erstellt eine neue Instanz eines DbServices für eine bestimmte Entity-Klasse
         /// </summary>
@@ -42,13 +48,25 @@ namespace RobinManzl.DataAccessLayer
         /// <param name="isView">
         /// Gibt an, ob es sich um eine View handelt, falls ja, können nur Daten abgefragt und nicht geändert werden
         /// </param>
-        public DbService(SqlConnection connection, bool isView = false)
+        /// <param name="insertProcdeure">
+        /// Die Angabe der Insert-StoredProcedure, welche bei Views verwendet wird
+        /// </param>
+        /// <param name="updateProcedure">
+        /// Die Angabe der Update-StoredProcedure, welche bei Views verwendet wird
+        /// </param>
+        /// <param name="deleteProcedure">
+        /// Die Angabe der Delete-StoredProcedure, welche bei Views verwendet wird
+        /// </param>
+        public DbService(SqlConnection connection, bool isView = false, string insertProcdeure = null, string updateProcedure = null, string deleteProcedure = null)
         {
             _lock = new object();
 
             _connection = connection;
 
             _isView = isView;
+            _insertProcedure = insertProcdeure;
+            _updateProcedure = updateProcedure;
+            _deleteProcedure = deleteProcedure;
 
             List<PropertyInfo> properties = GetProperties();
             _scriptGenerator = new ScriptGenerator<T>(properties);
@@ -224,7 +242,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool InsertEntity(T entity)
         {
-            if (_isView)
+            if (_isView && 
+                _insertProcedure == null)
             {
                 LastErrorMessage = "Cannot insert entity into a view";
                 return false;
@@ -236,7 +255,7 @@ namespace RobinManzl.DataAccessLayer
                 {
                     _connection.Open();
 
-                    var command = new SqlCommand(_scriptGenerator.GetInsertQuery(), _connection);
+                    var command = new SqlCommand(_isView ? _insertProcedure : _scriptGenerator.GetInsertQuery(), _connection);
                     AssignParameters(entity, command);
 
                     //_logger?.Debug(GenerateLoggingMessage(command));
@@ -270,7 +289,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool UpdateEntity(T entity)
         {
-            if (_isView)
+            if (_isView &&
+                _updateProcedure == null)
             {
                 LastErrorMessage = "Cannot update entity of a view";
                 return false;
@@ -282,7 +302,7 @@ namespace RobinManzl.DataAccessLayer
                 {
                     _connection.Open();
 
-                    var command = new SqlCommand(_scriptGenerator.GetUpdateQuery(), _connection);
+                    var command = new SqlCommand(_isView ? _updateProcedure : _scriptGenerator.GetUpdateQuery(), _connection);
                     AssignParameters(entity, command);
 
                     //_logger?.Debug(GenerateLoggingMessage(command));
@@ -336,7 +356,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool DeleteEntity(int entityId)
         {
-            if (_isView)
+            if (_isView &&
+                _deleteProcedure == null)
             {
                 LastErrorMessage = "Cannot delete entity of a view";
                 return false;
@@ -348,7 +369,7 @@ namespace RobinManzl.DataAccessLayer
                 {
                     _connection.Open();
 
-                    var command = new SqlCommand(_scriptGenerator.GetDeleteQuery(), _connection);
+                    var command = new SqlCommand(_isView ? _deleteProcedure : _scriptGenerator.GetDeleteQuery(), _connection);
                     command.Parameters.AddWithValue(nameof(IEntity.Id), entityId);
 
                     //_logger?.Debug(GenerateLoggingMessage(command));
