@@ -47,6 +47,9 @@ namespace RobinManzl.DataAccessLayer
         /// <param name="connection">
         /// Die SqlConnection, welche für die Datenbank-Verbindungen verwendet wird
         /// </param>
+        /// <param name="logger">
+        /// Die Logger-Instanz, welche bei allen Vorgängen verwendet wird
+        /// </param>
         /// <param name="isView">
         /// Gibt an, ob es sich um eine View handelt, falls ja, können nur Daten abgefragt und nicht geändert werden
         /// </param>
