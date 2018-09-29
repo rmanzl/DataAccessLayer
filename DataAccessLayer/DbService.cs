@@ -50,19 +50,7 @@ namespace RobinManzl.DataAccessLayer
         /// <param name="logger">
         /// Die Logger-Instanz, welche bei allen Vorgängen verwendet wird
         /// </param>
-        /// <param name="isView">
-        /// Gibt an, ob es sich um eine View handelt, falls ja, können nur Daten abgefragt und nicht geändert werden
-        /// </param>
-        /// <param name="insertProcdeure">
-        /// Die Angabe der Insert-StoredProcedure, welche bei Views verwendet wird
-        /// </param>
-        /// <param name="updateProcedure">
-        /// Die Angabe der Update-StoredProcedure, welche bei Views verwendet wird
-        /// </param>
-        /// <param name="deleteProcedure">
-        /// Die Angabe der Delete-StoredProcedure, welche bei Views verwendet wird
-        /// </param>
-        public DbService(SqlConnection connection, ILogger logger = null, bool isView = false, string insertProcdeure = null, string updateProcedure = null, string deleteProcedure = null)
+        public DbService(SqlConnection connection, ILogger logger = null)
         {
             _lock = new object();
 
@@ -70,12 +58,16 @@ namespace RobinManzl.DataAccessLayer
 
             _logger = logger;
 
-            _isView = isView;
-            _insertProcedure = insertProcdeure;
-            _updateProcedure = updateProcedure;
-            _deleteProcedure = deleteProcedure;
+            var viewAttribute = typeof(T).GetCustomAttribute<ViewAttribute>();
+            if (viewAttribute != null)
+            {
+                _isView = true;
+                _insertProcedure = viewAttribute.InsertProcedure;
+                _updateProcedure = viewAttribute.UpdateProcedure;
+                _deleteProcedure = viewAttribute.DeleteProcedure;
+            }
 
-            List<PropertyInfo> properties = GetProperties();
+            var properties = GetProperties();
             _scriptGenerator = new ScriptGenerator<T>(properties);
             _entityParser = new EntityParser<T>(properties);
         }

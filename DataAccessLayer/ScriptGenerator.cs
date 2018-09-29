@@ -30,7 +30,7 @@ namespace RobinManzl.DataAccessLayer
             _properties = properties;
             _tableSpecificProperties = _properties.Where(prop => !prop.Name.Equals(nameof(IEntity.Id))).ToList();
 
-            var tableAttribute = typeof(T).GetCustomAttribute<TableAttribute>();
+            var tableAttribute = typeof(T).GetCustomAttribute<TableBaseAttribute>();
             if (tableAttribute != null)
             {
                 _tableName = "";
