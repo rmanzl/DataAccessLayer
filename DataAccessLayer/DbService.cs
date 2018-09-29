@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
@@ -25,6 +26,8 @@ namespace RobinManzl.DataAccessLayer
         private readonly ILogger _logger;
 
         private readonly bool _isView;
+
+        private readonly string _procedureSchema;
 
         private readonly string _insertProcedure;
 
@@ -62,6 +65,7 @@ namespace RobinManzl.DataAccessLayer
             if (viewAttribute != null)
             {
                 _isView = true;
+                _procedureSchema = viewAttribute.ProcedureSchema;
                 _insertProcedure = viewAttribute.InsertProcedure;
                 _updateProcedure = viewAttribute.UpdateProcedure;
                 _deleteProcedure = viewAttribute.DeleteProcedure;
@@ -254,7 +258,23 @@ namespace RobinManzl.DataAccessLayer
                 {
                     _connection.Open();
 
-                    var command = new SqlCommand(_isView ? _insertProcedure : _scriptGenerator.GetInsertQuery(), _connection);
+                    string commandText;
+                    if (_isView)
+                    {
+                        commandText = $"[{(_procedureSchema != null ? _procedureSchema + "].[" : "")}{_insertProcedure}]";
+                    }
+                    else
+                    {
+                        commandText = _scriptGenerator.GetInsertQuery();
+                    }
+
+                    var command = new SqlCommand(commandText, _connection);
+
+                    if (_isView)
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                    }
+
                     AssignParameters(entity, command);
 
                     _logger?.Debug(GenerateLoggingMessage(command));
@@ -301,7 +321,23 @@ namespace RobinManzl.DataAccessLayer
                 {
                     _connection.Open();
 
-                    var command = new SqlCommand(_isView ? _updateProcedure : _scriptGenerator.GetUpdateQuery(), _connection);
+                    string commandText;
+                    if (_isView)
+                    {
+                        commandText = $"[{(_procedureSchema != null ? _procedureSchema + "].[" : "")}{_updateProcedure}]";
+                    }
+                    else
+                    {
+                        commandText = _scriptGenerator.GetUpdateQuery();
+                    }
+
+                    var command = new SqlCommand(commandText, _connection);
+
+                    if (_isView)
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                    }
+
                     AssignParameters(entity, command);
 
                     _logger?.Debug(GenerateLoggingMessage(command));
@@ -368,7 +404,23 @@ namespace RobinManzl.DataAccessLayer
                 {
                     _connection.Open();
 
-                    var command = new SqlCommand(_isView ? _deleteProcedure : _scriptGenerator.GetDeleteQuery(), _connection);
+                    string commandText;
+                    if (_isView)
+                    {
+                        commandText = $"[{(_procedureSchema != null ? _procedureSchema + "].[" : "")}{_deleteProcedure}]";
+                    }
+                    else
+                    {
+                        commandText = _scriptGenerator.GetDeleteQuery();
+                    }
+
+                    var command = new SqlCommand(commandText, _connection);
+
+                    if (_isView)
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                    }
+
                     command.Parameters.AddWithValue(nameof(IEntity.Id), entityId);
 
                     _logger?.Debug(GenerateLoggingMessage(command));

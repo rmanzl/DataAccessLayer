@@ -13,6 +13,11 @@ namespace RobinManzl.DataAccessLayer
     {
 
         /// <summary>
+        /// Gibt das verwendete Schema der Stored Procedures an, falls das Standardschema (dbo) verwendet wurde, kann dieses Attribute auch auf NULL gesetzt werden
+        /// </summary>
+        public string ProcedureSchema;
+
+        /// <summary>
         /// Gibt den Namen der Stored Procedure an, welche für die Anlage einer Zeile in der View verwendet werden soll
         /// </summary>
         public string InsertProcedure;

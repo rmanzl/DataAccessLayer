@@ -6,10 +6,10 @@
     <Authors>Robin Manzl</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>RobinManzl.DataAccessLayer</RootNamespace>
-    <Version>1.0.4</Version>
-    <AssemblyVersion>1.0.4.0</AssemblyVersion>
-    <FileVersion>1.0.4.0</FileVersion>
-    <PackageReleaseNotes>ViewAttribute hinzugefügt. Die Angabe der Stored Procedures für Views wird nun auch in diesem Attribut angegeben und nicht mehr bei der Instanzierung der DbService-Instanz.</PackageReleaseNotes>
+    <Version>1.0.5</Version>
+    <AssemblyVersion>1.0.5.0</AssemblyVersion>
+    <FileVersion>1.0.5.0</FileVersion>
+    <PackageReleaseNotes>ViewAttribut um Angabe des Schemas erweitert, welches für die Stored Procedures verwendet wurde.</PackageReleaseNotes>
     <Description>Leichtgewichtiges Framework um Daten einer Datenbank des Microsoft SQL Servers (auch Azure SQL) abzufragen und auf benutzerdefinierte Klassen zu mappen. Möglich sind alle CRUD-Operationen und auch die Abfrage von Daten aus Views wird unterstützt.</Description>
     <Copyright>Robin Manzl</Copyright>
     <NeutralLanguage>de</NeutralLanguage>
