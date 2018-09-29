@@ -22,6 +22,8 @@ namespace RobinManzl.DataAccessLayer
 
         private readonly SqlConnection _connection;
 
+        private readonly ILogger _logger;
+
         private readonly bool _isView;
 
         private readonly string _insertProcedure;
@@ -57,11 +59,13 @@ namespace RobinManzl.DataAccessLayer
         /// <param name="deleteProcedure">
         /// Die Angabe der Delete-StoredProcedure, welche bei Views verwendet wird
         /// </param>
-        public DbService(SqlConnection connection, bool isView = false, string insertProcdeure = null, string updateProcedure = null, string deleteProcedure = null)
+        public DbService(SqlConnection connection, ILogger logger = null, bool isView = false, string insertProcdeure = null, string updateProcedure = null, string deleteProcedure = null)
         {
             _lock = new object();
 
             _connection = connection;
+
+            _logger = logger;
 
             _isView = isView;
             _insertProcedure = insertProcdeure;
@@ -143,7 +147,7 @@ namespace RobinManzl.DataAccessLayer
                         command.Parameters.AddWithValue(parameter.Key, parameter.Value);
                     }
 
-                    //_logger?.Debug(GenerateLoggingMessage(command));
+                    _logger?.Debug(GenerateLoggingMessage(command));
 
                     SqlDataReader reader = command.ExecuteReader();
 
@@ -157,7 +161,7 @@ namespace RobinManzl.DataAccessLayer
                 }
                 catch (Exception exception)
                 {
-                    //_logger?.Error("Error while executing query", exception);
+                    _logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
                     throw;
                 }
@@ -258,7 +262,7 @@ namespace RobinManzl.DataAccessLayer
                     var command = new SqlCommand(_isView ? _insertProcedure : _scriptGenerator.GetInsertQuery(), _connection);
                     AssignParameters(entity, command);
 
-                    //_logger?.Debug(GenerateLoggingMessage(command));
+                    _logger?.Debug(GenerateLoggingMessage(command));
 
                     var result = (int)command.ExecuteScalar();
                     entity.Id = result;
@@ -267,7 +271,7 @@ namespace RobinManzl.DataAccessLayer
                 }
                 catch (Exception exception)
                 {
-                    //_logger?.Error("Error while executing query", exception);
+                    _logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
                     return false;
                 }
@@ -305,7 +309,7 @@ namespace RobinManzl.DataAccessLayer
                     var command = new SqlCommand(_isView ? _updateProcedure : _scriptGenerator.GetUpdateQuery(), _connection);
                     AssignParameters(entity, command);
 
-                    //_logger?.Debug(GenerateLoggingMessage(command));
+                    _logger?.Debug(GenerateLoggingMessage(command));
 
                     command.ExecuteNonQuery();
 
@@ -313,7 +317,7 @@ namespace RobinManzl.DataAccessLayer
                 }
                 catch (Exception exception)
                 {
-                    //_logger?.Error("Error while executing query", exception);
+                    _logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
                     return false;
                 }
@@ -372,7 +376,7 @@ namespace RobinManzl.DataAccessLayer
                     var command = new SqlCommand(_isView ? _deleteProcedure : _scriptGenerator.GetDeleteQuery(), _connection);
                     command.Parameters.AddWithValue(nameof(IEntity.Id), entityId);
 
-                    //_logger?.Debug(GenerateLoggingMessage(command));
+                    _logger?.Debug(GenerateLoggingMessage(command));
 
                     command.ExecuteNonQuery();
 
@@ -380,7 +384,7 @@ namespace RobinManzl.DataAccessLayer
                 }
                 catch (Exception exception)
                 {
-                    //_logger?.Error("Error while executing query", exception);
+                    _logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
                     return false;
                 }
