@@ -1,5 +1,5 @@
 ﻿
-namespace EntityDb.DataAccessLayer
+namespace DataAccessLayer
 {
     
     public interface IEntity

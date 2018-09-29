@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace EntityDb.DataAccessLayer.Query
+namespace DataAccessLayer.Query
 {
 
     public class IsInCondition : QueryCondition
     {
+
         public override ConditionType ConditionType => ConditionType.ValueCompare;
 
         public string TableName { get; set; }

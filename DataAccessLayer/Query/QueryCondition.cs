@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace EntityDb.DataAccessLayer.Query
+namespace DataAccessLayer.Query
 {
 
     public abstract class QueryCondition

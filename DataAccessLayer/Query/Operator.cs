@@ -1,4 +1,4 @@
-﻿namespace EntityDb.DataAccessLayer.Query
+﻿namespace DataAccessLayer.Query
 {
 
     public enum Operator

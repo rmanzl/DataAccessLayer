@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace EntityDb.DataAccessLayer.Query
+namespace DataAccessLayer.Query
 {
 
     public class NullCompareCondition : QueryCondition
     {
+
         public override ConditionType ConditionType => ConditionType.NullCompare;
 
         public string TableName { get; set; }

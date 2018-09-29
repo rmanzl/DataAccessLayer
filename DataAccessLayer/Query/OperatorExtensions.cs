@@ -1,5 +1,5 @@
 ﻿
-namespace EntityDb.DataAccessLayer.Query
+namespace DataAccessLayer.Query
 {
 
     internal static class OperatorExtensions

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
-using EntityDb.DataAccessLayer.Query;
+using DataAccessLayer.Query;
 
-namespace EntityDb.DataAccessLayer
+namespace DataAccessLayer
 {
     
     public class DbService<T>
@@ -15,8 +15,6 @@ namespace EntityDb.DataAccessLayer
         private readonly object _lock;
 
         private readonly SqlConnection _connection;
-
-        private readonly ILog _logger;
 
         private readonly bool _isView;
 
@@ -31,7 +29,6 @@ namespace EntityDb.DataAccessLayer
             _lock = new object();
 
             _connection = connection;
-            _logger = null; //TODO
 
             _isView = isView;
 
@@ -86,7 +83,7 @@ namespace EntityDb.DataAccessLayer
                         command.Parameters.AddWithValue(parameter.Key, parameter.Value);
                     }
 
-                    _logger?.Debug(GenerateLoggingMessage(command));
+                    //_logger?.Debug(GenerateLoggingMessage(command));
 
                     SqlDataReader reader = command.ExecuteReader();
 
@@ -100,7 +97,7 @@ namespace EntityDb.DataAccessLayer
                 }
                 catch (Exception exception)
                 {
-                    _logger?.Error("Error while executing query", exception);
+                    //_logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
                     throw;
                 }
@@ -152,7 +149,7 @@ namespace EntityDb.DataAccessLayer
                     var command = new SqlCommand(_scriptGenerator.GetInsertQuery(), _connection);
                     AssignParameters(entity, command);
 
-                    _logger?.Debug(GenerateLoggingMessage(command));
+                    //_logger?.Debug(GenerateLoggingMessage(command));
 
                     var result = (int)command.ExecuteScalar();
                     entity.Id = result;
@@ -161,7 +158,7 @@ namespace EntityDb.DataAccessLayer
                 }
                 catch (Exception exception)
                 {
-                    _logger?.Error("Error while executing query", exception);
+                    //_logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
                     return false;
                 }
@@ -189,7 +186,7 @@ namespace EntityDb.DataAccessLayer
                     var command = new SqlCommand(_scriptGenerator.GetUpdateQuery(), _connection);
                     AssignParameters(entity, command);
 
-                    _logger?.Debug(GenerateLoggingMessage(command));
+                    //_logger?.Debug(GenerateLoggingMessage(command));
 
                     command.ExecuteNonQuery();
 
@@ -197,7 +194,7 @@ namespace EntityDb.DataAccessLayer
                 }
                 catch (Exception exception)
                 {
-                    _logger?.Error("Error while executing query", exception);
+                    //_logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
                     return false;
                 }
@@ -219,11 +216,11 @@ namespace EntityDb.DataAccessLayer
                 };
 
                 // Workaround für Image-datentyp
-                if (parameter.Key.Equals("Image"))
+                /*if (parameter.Key.Equals("Image"))
                 {
                     sqlParameter.DbType = DbType.Binary;
-                    sqlParameter.SqlDbType = SqlDbType.Image;
-                }
+                    sqlParameter.SqlDbType = System.Data.SqlDbType.Image;
+                }*/
 
                 command.Parameters.Add(sqlParameter);
             }
@@ -246,7 +243,7 @@ namespace EntityDb.DataAccessLayer
                     var command = new SqlCommand(_scriptGenerator.GetDeleteQuery(), _connection);
                     command.Parameters.AddWithValue(nameof(IEntity.Id), entityId);
 
-                    _logger?.Debug(GenerateLoggingMessage(command));
+                    //_logger?.Debug(GenerateLoggingMessage(command));
 
                     command.ExecuteNonQuery();
 
@@ -254,7 +251,7 @@ namespace EntityDb.DataAccessLayer
                 }
                 catch (Exception exception)
                 {
-                    _logger?.Error("Error while executing query", exception);
+                    //_logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
                     return false;
                 }

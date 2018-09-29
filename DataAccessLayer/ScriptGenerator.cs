@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using EntityDb.DataAccessLayer.Query;
+using DataAccessLayer.Query;
 
-namespace EntityDb.DataAccessLayer
+namespace DataAccessLayer
 {
     
     public class ScriptGenerator<T>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EntityDb.DataAccessLayer
+namespace DataAccessLayer
 {
 
     [AttributeUsage(AttributeTargets.Class)]
