@@ -42,6 +42,8 @@ namespace RobinManzl.DataAccessLayer
 
         private readonly EntityParser<T> _entityParser;
 
+        private SqlTransaction _currentTransaction;
+
         /// <summary>
         /// Beinhaltet die zuletzt generierte Fehlermeldung, sofern eine existiert
         /// </summary>
@@ -88,6 +90,33 @@ namespace RobinManzl.DataAccessLayer
         }
 
         /// <summary>
+        /// Startet eine neue Transaktion oder übernimmt die angegebene Transaktion
+        /// </summary>
+        /// <param name="transaction">
+        /// Falls bereits eine Transaktion gestartet wurde, kann sie durch diesen Parameter übergeben werden
+        /// </param>
+        /// <returns>
+        /// Gibt die Transaktion zurück
+        /// </returns>
+        public SqlTransaction BeginTransaction(SqlTransaction transaction = null)
+        {
+            lock (_lock)
+            {
+                _currentTransaction = transaction ?? _connection.BeginTransaction();
+
+                return _currentTransaction;
+            }
+        }
+
+        /// <summary>
+        /// Entfernt die aktuelle Transaktion aus diesem DbService
+        /// </summary>
+        public void RemoveTransaction()
+        {
+            _currentTransaction = null;
+        }
+
+        /// <summary>
         /// Führt eine Abfrage gegen die Tabelle aus
         /// </summary>
         /// <param name="queryCondition">
@@ -103,7 +132,13 @@ namespace RobinManzl.DataAccessLayer
         {
             lock (_lock)
             {
-                _connection.Open();
+                var opened = _connection.State != ConnectionState.Open;
+
+                if (opened)
+                {
+                    _connection.Open();
+                }
+
                 try
                 {
                     string query;
@@ -119,6 +154,11 @@ namespace RobinManzl.DataAccessLayer
                     }
 
                     var command = new SqlCommand(query, _connection);
+                    if (_currentTransaction != null)
+                    {
+                        command.Transaction = _currentTransaction;
+                    }
+
                     foreach (var parameter in parameters)
                     {
                         command.Parameters.AddWithValue(parameter.Key, parameter.Value);
@@ -140,11 +180,22 @@ namespace RobinManzl.DataAccessLayer
                 {
                     _logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
+
+                    if (_currentTransaction != null)
+                    {
+                        _currentTransaction.Rollback();
+                        _currentTransaction = null;
+                        _connection.Close();
+                    }
+
                     throw;
                 }
                 finally
                 {
-                    _connection.Close();
+                    if (opened)
+                    {
+                        _connection.Close();
+                    }
                 }
             }
         }
@@ -306,9 +357,14 @@ namespace RobinManzl.DataAccessLayer
 
             lock (_lock)
             {
+                var opened = _connection.State != ConnectionState.Open;
+
                 try
                 {
-                    _connection.Open();
+                    if (opened)
+                    {
+                        _connection.Open();
+                    }
 
                     string commandText;
                     if (_isView)
@@ -321,6 +377,10 @@ namespace RobinManzl.DataAccessLayer
                     }
 
                     var command = new SqlCommand(commandText, _connection);
+                    if (_currentTransaction != null)
+                    {
+                        command.Transaction = _currentTransaction;
+                    }
 
                     if (_isView)
                     {
@@ -340,11 +400,22 @@ namespace RobinManzl.DataAccessLayer
                 {
                     _logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
+
+                    if (_currentTransaction != null)
+                    {
+                        _currentTransaction.Rollback();
+                        _currentTransaction = null;
+                        _connection.Close();
+                    }
+
                     return false;
                 }
                 finally
                 {
-                    _connection.Close();
+                    if (opened)
+                    {
+                        _connection.Close();
+                    }
                 }
             }
         }
@@ -369,9 +440,14 @@ namespace RobinManzl.DataAccessLayer
 
             lock (_lock)
             {
+                var opened = _connection.State != ConnectionState.Open;
+
                 try
                 {
-                    _connection.Open();
+                    if (opened)
+                    {
+                        _connection.Open();
+                    }
 
                     string commandText;
                     if (_isView)
@@ -384,6 +460,10 @@ namespace RobinManzl.DataAccessLayer
                     }
 
                     var command = new SqlCommand(commandText, _connection);
+                    if (_currentTransaction != null)
+                    {
+                        command.Transaction = _currentTransaction;
+                    }
 
                     if (_isView)
                     {
@@ -402,11 +482,22 @@ namespace RobinManzl.DataAccessLayer
                 {
                     _logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
+
+                    if (_currentTransaction != null)
+                    {
+                        _currentTransaction.Rollback();
+                        _currentTransaction = null;
+                        _connection.Close();
+                    }
+
                     return false;
                 }
                 finally
                 {
-                    _connection.Close();
+                    if (opened)
+                    {
+                        _connection.Close();
+                    }
                 }
             }
         }
@@ -452,9 +543,14 @@ namespace RobinManzl.DataAccessLayer
 
             lock (_lock)
             {
+                var opened = _connection.State != ConnectionState.Open;
+
                 try
                 {
-                    _connection.Open();
+                    if (opened)
+                    {
+                        _connection.Open();
+                    }
 
                     string commandText;
                     if (_isView)
@@ -467,6 +563,10 @@ namespace RobinManzl.DataAccessLayer
                     }
 
                     var command = new SqlCommand(commandText, _connection);
+                    if (_currentTransaction != null)
+                    {
+                        command.Transaction = _currentTransaction;
+                    }
 
                     if (_isView)
                     {
@@ -485,11 +585,22 @@ namespace RobinManzl.DataAccessLayer
                 {
                     _logger?.Error("Error while executing query", exception);
                     LastErrorMessage = exception.Message;
+
+                    if (_currentTransaction != null)
+                    {
+                        _currentTransaction.Rollback();
+                        _currentTransaction = null;
+                        _connection.Close();
+                    }
+
                     return false;
                 }
                 finally
                 {
-                    _connection.Close();
+                    if (opened)
+                    {
+                        _connection.Close();
+                    }
                 }
             }
         }
