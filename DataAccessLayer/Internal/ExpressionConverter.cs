@@ -10,14 +10,14 @@ namespace RobinManzl.DataAccessLayer.Internal
     internal static class ExpressionConverter
     {
         
-        public static QueryCondition ToQueryCondition<T>(Expression<Func<T, bool>> expression)
+        public static QueryCondition ToQueryCondition<T>(Expression<Func<T, bool>> expression, Type entityType)
             where T : IEntity, new()
         {
             var root = (BinaryExpression)expression.Body;
-            return ParseBinaryExpression(root);
+            return ParseBinaryExpression(root, entityType);
         }
 
-        private static QueryCondition ParseBinaryExpression(BinaryExpression exp)
+        private static QueryCondition ParseBinaryExpression(BinaryExpression exp, Type entityType)
         {
             switch (exp.NodeType)
             {
@@ -27,8 +27,8 @@ namespace RobinManzl.DataAccessLayer.Internal
                 case ExpressionType.OrElse:
                     return new LogicalCondition()
                     {
-                        LeftCondition = ParseBinaryExpression((BinaryExpression)exp.Left),
-                        RightCondition = ParseBinaryExpression((BinaryExpression)exp.Right),
+                        LeftCondition = ParseBinaryExpression((BinaryExpression)exp.Left, entityType),
+                        RightCondition = ParseBinaryExpression((BinaryExpression)exp.Right, entityType),
                         LogicalOperator = exp.NodeType == ExpressionType.And || exp.NodeType == ExpressionType.AndAlso ? LogicalOperator.And : LogicalOperator.Or
                     };
 
@@ -88,25 +88,49 @@ namespace RobinManzl.DataAccessLayer.Internal
                     else
                     {
                         var secondProperty = (MemberExpression)exp.Right;
-                        var secondName = secondProperty.Member.Name;
 
-                        var secondAttribute = secondProperty.Member.GetCustomAttribute<ColumnAttribute>();
-                        if (secondAttribute?.Name != null)
+                        if (secondProperty.Member.DeclaringType == entityType)
                         {
-                            name = secondAttribute.Name;
+                            var secondName = secondProperty.Member.Name;
+
+                            var secondAttribute = secondProperty.Member.GetCustomAttribute<ColumnAttribute>();
+                            if (secondAttribute?.Name != null)
+                            {
+                                name = secondAttribute.Name;
+                            }
+
+                            return new ColumnCompareCondition()
+                            {
+                                FirstAttributeName = name,
+                                Operator = op,
+                                SecondAttributeName = secondName
+                            };
                         }
-
-                        return new ColumnCompareCondition()
+                        else
                         {
-                            FirstAttributeName = name,
-                            Operator = op,
-                            SecondAttributeName = secondName
-                        };
+                            return new ValueCompareCondition()
+                            {
+                                AttributeName = name,
+                                Operator = op,
+                                Value = GetValue(secondProperty)
+                            };
+                        }
                     }
                     
                 default:
                     throw new ArgumentOutOfRangeException($"This type of expression is currently not supported: {exp.NodeType}");
             }
+        }
+
+        private static object GetValue(MemberExpression member)
+        {
+            var objectMember = Expression.Convert(member, typeof(object));
+
+            var getterLambda = Expression.Lambda<Func<object>>(objectMember);
+
+            var getter = getterLambda.Compile();
+
+            return getter();
         }
 
     }

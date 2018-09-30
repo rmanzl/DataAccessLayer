@@ -163,7 +163,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetEntities(Expression<Func<T, bool>> expression = null, QueryOptions options = null)
         {
-            return GetEntities(ExpressionConverter.ToQueryCondition(expression), options);
+            return GetEntities(ExpressionConverter.ToQueryCondition(expression, typeof(T)), options);
         }
 
         /// <summary>
@@ -221,7 +221,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetTopNEntities(int count, Expression<Func<T, bool>> expression = null)
         {
-            return GetTopNEntities(count, ExpressionConverter.ToQueryCondition(expression));
+            return GetTopNEntities(count, ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }
 
         /// <summary>
@@ -252,7 +252,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetFirstEntity(Expression<Func<T, bool>> expression = null)
         {
-            return GetFirstEntity(ExpressionConverter.ToQueryCondition(expression));
+            return GetFirstEntity(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetFirstOrDefaultEntity(Expression<Func<T, bool>> expression = null)
         {
-            return GetFirstOrDefaultEntity(ExpressionConverter.ToQueryCondition(expression));
+            return GetFirstOrDefaultEntity(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }
 
         /// <summary>
