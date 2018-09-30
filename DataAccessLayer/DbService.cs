@@ -102,6 +102,7 @@ namespace RobinManzl.DataAccessLayer
         {
             lock (_lock)
             {
+                _connection.Open();
                 _currentTransaction = transaction ?? _connection.BeginTransaction();
 
                 return _currentTransaction;
@@ -113,7 +114,15 @@ namespace RobinManzl.DataAccessLayer
         /// </summary>
         public void RemoveTransaction()
         {
-            _currentTransaction = null;
+            lock (_lock)
+            {
+                _currentTransaction = null;
+
+                if (_connection.State == ConnectionState.Open)
+                {
+                    _connection.Close();
+                }
+            }
         }
 
         /// <summary>
