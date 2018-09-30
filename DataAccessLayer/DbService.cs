@@ -161,7 +161,7 @@ namespace RobinManzl.DataAccessLayer
         /// <returns>
         /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
         /// </returns>
-        public List<T> GetEntities(Expression<Func<T, bool>> expression = null, QueryOptions options = null)
+        public List<T> GetEntities(Expression<Func<T, bool>> expression, QueryOptions options = null)
         {
             return GetEntities(ExpressionConverter.ToQueryCondition(expression, typeof(T)), options);
         }
@@ -219,7 +219,7 @@ namespace RobinManzl.DataAccessLayer
         /// <returns>
         /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
         /// </returns>
-        public List<T> GetTopNEntities(int count, Expression<Func<T, bool>> expression = null)
+        public List<T> GetTopNEntities(int count, Expression<Func<T, bool>> expression)
         {
             return GetTopNEntities(count, ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }
@@ -250,7 +250,7 @@ namespace RobinManzl.DataAccessLayer
         /// <returns>
         /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
         /// </returns>
-        public T GetFirstEntity(Expression<Func<T, bool>> expression = null)
+        public T GetFirstEntity(Expression<Func<T, bool>> expression)
         {
             return GetFirstEntity(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }
@@ -281,7 +281,7 @@ namespace RobinManzl.DataAccessLayer
         /// <returns>
         /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
         /// </returns>
-        public T GetFirstOrDefaultEntity(Expression<Func<T, bool>> expression = null)
+        public T GetFirstOrDefaultEntity(Expression<Func<T, bool>> expression)
         {
             return GetFirstOrDefaultEntity(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }
