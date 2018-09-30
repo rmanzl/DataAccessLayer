@@ -186,6 +186,9 @@ namespace RobinManzl.DataAccessLayer
                     {
                         entities.Add(_entityParser.ParseEntity(reader));
                     }
+                    
+                    reader.Close();
+                    reader.Dispose();
 
                     return entities;
                 }

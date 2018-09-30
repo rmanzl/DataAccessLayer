@@ -140,7 +140,11 @@ namespace RobinManzl.DataAccessLayer.Internal
                 stringBuilder.AppendLine("]");
 
                 stringBuilder.Append("([");
-                stringBuilder.Append(string.Join("], [", _tableSpecificProperties.Select(prop => prop.Name)));
+                stringBuilder.Append(string.Join("], [", _tableSpecificProperties.Select(prop =>
+                {
+                    var attribute = prop.GetCustomAttribute<ColumnAttribute>();
+                    return attribute.Name ?? prop.Name;
+                })));
                 stringBuilder.AppendLine("])");
 
                 stringBuilder.AppendLine("OUTPUT INSERTED.[Id]");
@@ -167,7 +171,12 @@ namespace RobinManzl.DataAccessLayer.Internal
                 stringBuilder.AppendLine("]");
 
                 stringBuilder.Append("SET [");
-                stringBuilder.AppendLine(string.Join(", [", _tableSpecificProperties.Select(prop => prop.Name + "] = @" + prop.Name)));
+                stringBuilder.AppendLine(string.Join(", [", _tableSpecificProperties.Select(prop =>
+                {
+                    var attribute = prop.GetCustomAttribute<ColumnAttribute>();
+                    var name = attribute.Name ?? prop.Name;
+                    return name + "] = @" + name;
+                })));
 
                 stringBuilder.Append("WHERE [Id] = @Id");
 
