@@ -204,6 +204,21 @@ namespace RobinManzl.DataAccessLayer.Internal
             return _deleteQuery;
         }
 
+        public string GetDeleteQuery(Dictionary<string, object> parameters, QueryCondition queryCondition)
+        {
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.Append("DELETE FROM [");
+            stringBuilder.Append(_tableName);
+            stringBuilder.AppendLine("]");
+
+            stringBuilder.Append("WHERE ");
+            queryCondition.GenerateConditionString(stringBuilder, parameters);
+            stringBuilder.AppendLine();
+
+            return stringBuilder.ToString();
+        }
+
     }
 
 }

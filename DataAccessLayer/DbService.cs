@@ -621,6 +621,91 @@ namespace RobinManzl.DataAccessLayer
             }
         }
 
+        /// <summary>
+        /// Diese Methode kann verwendet werden, um Zeilen anhang einer QueryCondition in der Datenbank zu löschen
+        /// </summary>
+        /// <param name="queryCondition">
+        /// Die QueryConition, die für die WHERE-Klausel verwendet werden soll
+        /// </param>
+        /// <returns>
+        /// Gibt an, ob der Vorgang erfolgreich war
+        /// </returns>
+        public bool DeleteEntities(QueryCondition queryCondition)
+        {
+            if (_isView)
+            {
+                LastErrorMessage = "Cannot delete entities of a view";
+                return false;
+            }
+
+            lock (_lock)
+            {
+                var opened = _connection.State != ConnectionState.Open;
+
+                try
+                {
+                    if (opened)
+                    {
+                        _connection.Open();
+                    }
+
+                    var parameters = new Dictionary<string, object>();
+
+                    var command = new SqlCommand(_scriptGenerator.GetDeleteQuery(parameters, queryCondition), _connection);
+                    if (_currentTransaction != null)
+                    {
+                        command.Transaction = _currentTransaction;
+                    }
+
+                    foreach (var parameter in parameters)
+                    {
+                        command.Parameters.AddWithValue(parameter.Key, parameter.Value);
+                    }
+
+                    _logger?.Debug(GenerateLoggingMessage(command));
+
+                    command.ExecuteNonQuery();
+
+                    return true;
+                }
+                catch (Exception exception)
+                {
+                    _logger?.Error("Error while executing query", exception);
+                    LastErrorMessage = exception.Message;
+
+                    if (_currentTransaction != null)
+                    {
+                        _currentTransaction.Rollback();
+                        _currentTransaction = null;
+                        _connection.Close();
+                    }
+
+                    return false;
+                }
+                finally
+                {
+                    if (opened)
+                    {
+                        _connection.Close();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Diese Methode kann verwendet werden, um Zeilen anhang einer Expression in der Datenbank zu löschen
+        /// </summary>
+        /// <param name="expression">
+        /// Die Expression, die für die WHERE-Klausel verwendet werden soll
+        /// </param>
+        /// <returns>
+        /// Gibt an, ob der Vorgang erfolgreich war
+        /// </returns>
+        public bool DeleteEntities(Expression<Func<T, bool>> expression)
+        {
+            return DeleteEntities(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
+        }
+
         private string GenerateLoggingMessage(SqlCommand command)
         {
             var message = "Execute statement: {";

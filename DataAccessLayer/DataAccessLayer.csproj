@@ -6,14 +6,17 @@
     <Authors>Robin Manzl</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>RobinManzl.DataAccessLayer</RootNamespace>
-    <Version>1.2.4</Version>
-    <AssemblyVersion>1.2.4.0</AssemblyVersion>
-    <FileVersion>1.2.4.0</FileVersion>
-    <PackageReleaseNotes>BugFix ColumnAttribute</PackageReleaseNotes>
+    <Version>1.3.0</Version>
+    <AssemblyVersion>1.3.0.0</AssemblyVersion>
+    <FileVersion>1.3.0.0</FileVersion>
+    <PackageReleaseNotes>Möglichkeit hinzugefügt, Datenbankzeilen anhand einer QueryCondition zu löschen</PackageReleaseNotes>
     <Description>Leichtgewichtiges Framework um Daten einer Datenbank des Microsoft SQL Servers (auch Azure SQL) abzufragen und auf benutzerdefinierte Klassen zu mappen. Möglich sind alle CRUD-Operationen und auch die Abfrage von Daten aus Views wird unterstützt.</Description>
     <Copyright>Robin Manzl</Copyright>
     <NeutralLanguage>de</NeutralLanguage>
     <SignAssembly>false</SignAssembly>
+    <PackageLicenseUrl>https://github.com/rmanzl/DataAccessLayer/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/rmanzl/DataAccessLayer</PackageProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
