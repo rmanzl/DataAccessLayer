@@ -15,11 +15,6 @@ namespace RobinManzl.DataAccessLayer.Query
         public override ConditionType ConditionType => ConditionType.NullCompare;
 
         /// <summary>
-        /// Die Angabe des Tabellennamens
-        /// </summary>
-        public string TableName { get; set; }
-
-        /// <summary>
         /// Die Angabe des Spaltennamens
         /// </summary>
         public string AttributeName { get; set; }
@@ -29,16 +24,9 @@ namespace RobinManzl.DataAccessLayer.Query
         /// </summary>
         public bool ShouldBeNull { get; set; }
 
-        internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameter, string tableName)
+        internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameter)
         {
-            if (TableName == null)
-            {
-                TableName = tableName;
-            }
-
             stringBuilder.Append("[");
-            stringBuilder.Append(TableName);
-            stringBuilder.Append("].[");
             stringBuilder.Append(AttributeName);
             stringBuilder.Append("] IS");
 

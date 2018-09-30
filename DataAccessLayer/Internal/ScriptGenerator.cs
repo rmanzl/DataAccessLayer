@@ -2,9 +2,10 @@
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using RobinManzl.DataAccessLayer.Attributes;
 using RobinManzl.DataAccessLayer.Query;
 
-namespace RobinManzl.DataAccessLayer
+namespace RobinManzl.DataAccessLayer.Internal
 {
     
     internal class ScriptGenerator<T>
@@ -81,7 +82,7 @@ namespace RobinManzl.DataAccessLayer
             return _selectQuery;
         }
         
-        public string GetSelectQuery(Dictionary<string, object> parameters, QueryCondition queryCondition = null, string joinStatement = null, QueryOptions queryOptions = null)
+        public string GetSelectQuery(Dictionary<string, object> parameters, QueryCondition queryCondition = null, QueryOptions queryOptions = null)
         {
             var selectQuery = GetSelectQuery();
             if (queryOptions != null &&
@@ -96,15 +97,10 @@ namespace RobinManzl.DataAccessLayer
 
             var stringBuilder = new StringBuilder(selectQuery);
 
-            if (joinStatement != null)
-            {
-                stringBuilder.AppendLine(joinStatement);
-            }
-
             if (queryCondition != null)
             {
                 stringBuilder.Append("WHERE ");
-                queryCondition.GenerateConditionString(stringBuilder, parameters, _tableName);
+                queryCondition.GenerateConditionString(stringBuilder, parameters);
                 stringBuilder.AppendLine();
             }
 

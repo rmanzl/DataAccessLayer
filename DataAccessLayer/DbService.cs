@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using RobinManzl.DataAccessLayer.Attributes;
+using RobinManzl.DataAccessLayer.Internal;
 using RobinManzl.DataAccessLayer.Query;
 
 namespace RobinManzl.DataAccessLayer
 {
-    
+
     /// <summary>
     /// Diese Klasse kann verwendet werden, um Daten aus einer Datenbank auszulesen und zu ändern
     /// </summary>
@@ -85,34 +88,10 @@ namespace RobinManzl.DataAccessLayer
         }
 
         /// <summary>
-        /// Frägt eine Zeile der Tabelle anhand ihres Primärschlüssels ab
-        /// </summary>
-        /// <param name="id">
-        /// Der Wert des Primärschlüsselss
-        /// </param>
-        /// <returns>
-        /// Gibt die gefundene Zeile als Objekt zurück
-        /// </returns>
-        public T GetEntityById(int id)
-        {
-            List<T> entities = GetEntities(new ValueCompareCondition
-            {
-                AttributeName = nameof(IEntity.Id),
-                Value = id,
-                Operator = Operator.Equals
-            });
-
-            return entities.Single();
-        }
-
-        /// <summary>
         /// Führt eine Abfrage gegen die Tabelle aus
         /// </summary>
         /// <param name="queryCondition">
         /// Spezifiziert die WHERE-Klausel der Abfrage
-        /// </param>
-        /// <param name="joinStatement">
-        /// Stellt das JOIN Statement dar, welches optional verwendet werden kann, um Daten aus einer anderen Tabelle hinzuzufügen
         /// </param>
         /// <param name="options">
         /// Kann verwendet werden, um Optionen für die Abfrage anzugeben
@@ -120,7 +99,7 @@ namespace RobinManzl.DataAccessLayer
         /// <returns>
         /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
         /// </returns>
-        public List<T> GetEntities(QueryCondition queryCondition = null, string joinStatement = null, QueryOptions options = null)
+        public List<T> GetEntities(QueryCondition queryCondition = null, QueryOptions options = null)
         {
             lock (_lock)
             {
@@ -130,25 +109,24 @@ namespace RobinManzl.DataAccessLayer
                     string query;
                     var parameters = new Dictionary<string, object>();
 
-                    if (queryCondition != null ||
-                        joinStatement != null)
+                    if (queryCondition != null)
                     {
-                        query = _scriptGenerator.GetSelectQuery(parameters, queryCondition, joinStatement, options);
+                        query = _scriptGenerator.GetSelectQuery(parameters, queryCondition, options);
                     }
                     else
                     {
-                        query = _scriptGenerator.GetSelectQuery(null, null, null, options);
+                        query = _scriptGenerator.GetSelectQuery(null, null, options);
                     }
 
                     var command = new SqlCommand(query, _connection);
-                    foreach (KeyValuePair<string, object> parameter in parameters)
+                    foreach (var parameter in parameters)
                     {
                         command.Parameters.AddWithValue(parameter.Key, parameter.Value);
                     }
 
                     _logger?.Debug(GenerateLoggingMessage(command));
 
-                    SqlDataReader reader = command.ExecuteReader();
+                    var reader = command.ExecuteReader();
 
                     var entities = new List<T>();
                     while (reader.Read())
@@ -172,6 +150,44 @@ namespace RobinManzl.DataAccessLayer
         }
 
         /// <summary>
+        /// Führt eine Abfrage gegen die Tabelle aus
+        /// </summary>
+        /// <param name="expression">
+        /// Spezifiziert die WHERE-Klausel der Abfrage
+        /// </param>
+        /// <param name="options">
+        /// Kann verwendet werden, um Optionen für die Abfrage anzugeben
+        /// </param>
+        /// <returns>
+        /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+        /// </returns>
+        public List<T> GetEntities(Expression<Func<T, bool>> expression = null, QueryOptions options = null)
+        {
+            return GetEntities(ExpressionConverter.ToQueryCondition(expression), options);
+        }
+
+        /// <summary>
+        /// Frägt eine Zeile der Tabelle anhand ihres Primärschlüssels ab
+        /// </summary>
+        /// <param name="id">
+        /// Der Wert des Primärschlüsselss
+        /// </param>
+        /// <returns>
+        /// Gibt die gefundene Zeile als Objekt zurück
+        /// </returns>
+        public T GetEntityById(int id)
+        {
+            var entities = GetEntities(new ValueCompareCondition
+            {
+                AttributeName = nameof(IEntity.Id),
+                Value = id,
+                Operator = Operator.Equals
+            });
+
+            return entities.Single();
+        }
+
+        /// <summary>
         /// Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die ersten <code>count</code> Zeilen zurück
         /// </summary>
         /// <param name="count">
@@ -180,18 +196,32 @@ namespace RobinManzl.DataAccessLayer
         /// <param name="queryCondition">
         /// Spezifiziert die WHERE-Klausel der Abfrage
         /// </param>
-        /// <param name="joinStatement">
-        /// Stellt das JOIN Statement dar, welches optional verwendet werden kann, um Daten aus einer anderen Tabelle hinzuzufügen
+        /// <returns>
+        /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+        /// </returns>
+        public List<T> GetTopNEntities(int count, QueryCondition queryCondition = null)
+        {
+            return GetEntities(queryCondition, new QueryOptions()
+            {
+                MaxRowCount = count
+            });
+        }
+
+        /// <summary>
+        /// Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die ersten <code>count</code> Zeilen zurück
+        /// </summary>
+        /// <param name="count">
+        /// Gibt an, wieviele Zeilen maximal vom Datenbankserver abgefragt werden sollen
+        /// </param>
+        /// <param name="expression">
+        /// Spezifiziert die WHERE-Klausel der Abfrage
         /// </param>
         /// <returns>
         /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
         /// </returns>
-        public List<T> GetTopNEntities(int count, QueryCondition queryCondition = null, string joinStatement = null)
+        public List<T> GetTopNEntities(int count, Expression<Func<T, bool>> expression = null)
         {
-            return GetEntities(queryCondition, joinStatement, new QueryOptions()
-            {
-                MaxRowCount = count
-            });
+            return GetTopNEntities(count, ExpressionConverter.ToQueryCondition(expression));
         }
 
         /// <summary>
@@ -200,15 +230,12 @@ namespace RobinManzl.DataAccessLayer
         /// <param name="queryCondition">
         /// Spezifiziert die WHERE-Klausel der Abfrage
         /// </param>
-        /// <param name="joinStatement">
-        /// Stellt das JOIN Statement dar, welches optional verwendet werden kann, um Daten aus einer anderen Tabelle hinzuzufügen
-        /// </param>
         /// <returns>
         /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
         /// </returns>
-        public T GetFirstEntity(QueryCondition queryCondition = null, string joinStatement = null)
+        public T GetFirstEntity(QueryCondition queryCondition = null)
         {
-            return GetEntities(queryCondition, joinStatement, new QueryOptions()
+            return GetEntities(queryCondition, new QueryOptions()
             {
                 MaxRowCount = 1
             }).First();
@@ -217,21 +244,46 @@ namespace RobinManzl.DataAccessLayer
         /// <summary>
         /// Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die erste Zeile zurück
         /// </summary>
-        /// <param name="queryCondition">
+        /// <param name="expression">
         /// Spezifiziert die WHERE-Klausel der Abfrage
-        /// </param>
-        /// <param name="joinStatement">
-        /// Stellt das JOIN Statement dar, welches optional verwendet werden kann, um Daten aus einer anderen Tabelle hinzuzufügen
         /// </param>
         /// <returns>
         /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
         /// </returns>
-        public T GetFirstOrDefaultEntity(QueryCondition queryCondition = null, string joinStatement = null)
+        public T GetFirstEntity(Expression<Func<T, bool>> expression = null)
         {
-            return GetEntities(queryCondition, joinStatement, new QueryOptions()
+            return GetFirstEntity(ExpressionConverter.ToQueryCondition(expression));
+        }
+
+        /// <summary>
+        /// Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die erste Zeile zurück
+        /// </summary>
+        /// <param name="queryCondition">
+        /// Spezifiziert die WHERE-Klausel der Abfrage
+        /// </param>
+        /// <returns>
+        /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+        /// </returns>
+        public T GetFirstOrDefaultEntity(QueryCondition queryCondition = null)
+        {
+            return GetEntities(queryCondition, new QueryOptions()
             {
                 MaxRowCount = 1
             }).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die erste Zeile zurück
+        /// </summary>
+        /// <param name="expression">
+        /// Spezifiziert die WHERE-Klausel der Abfrage
+        /// </param>
+        /// <returns>
+        /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+        /// </returns>
+        public T GetFirstOrDefaultEntity(Expression<Func<T, bool>> expression = null)
+        {
+            return GetFirstOrDefaultEntity(ExpressionConverter.ToQueryCondition(expression));
         }
 
         /// <summary>
@@ -245,7 +297,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool InsertEntity(T entity)
         {
-            if (_isView && 
+            if (_isView &&
                 _insertProcedure == null)
             {
                 LastErrorMessage = "Cannot insert entity into a view";
@@ -361,7 +413,7 @@ namespace RobinManzl.DataAccessLayer
 
         private void AssignParameters(T entity, SqlCommand command)
         {
-            foreach (KeyValuePair<string, object> parameter in _entityParser.GetParameters(entity))
+            foreach (var parameter in _entityParser.GetParameters(entity))
             {
                 var sqlParameter = new SqlParameter()
                 {
@@ -441,7 +493,7 @@ namespace RobinManzl.DataAccessLayer
                 }
             }
         }
-        
+
         private string GenerateLoggingMessage(SqlCommand command)
         {
             var message = "Execute statement: {";

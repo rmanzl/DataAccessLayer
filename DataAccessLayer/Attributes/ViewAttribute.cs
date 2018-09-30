@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RobinManzl.DataAccessLayer
+namespace RobinManzl.DataAccessLayer.Attributes
 {
 
     /// <inheritdoc />
@@ -34,7 +34,7 @@ namespace RobinManzl.DataAccessLayer
 
         /// <inheritdoc />
         public ViewAttribute(string name = null, string schema = null)
-        : base(name, schema)
+            : base(name, schema)
         {
         }
 

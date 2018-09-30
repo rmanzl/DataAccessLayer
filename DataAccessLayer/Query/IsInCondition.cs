@@ -35,17 +35,12 @@ namespace RobinManzl.DataAccessLayer.Query
         /// </summary>
         public bool ShouldBeIn { get; set; }
 
-        internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters, string tableName)
+        internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters)
         {
             if (Values.Count == 0)
             {
                 stringBuilder.Append("1 = 0");
                 return;
-            }
-
-            if (TableName == null)
-            {
-                TableName = tableName;
             }
 
             stringBuilder.Append("[");

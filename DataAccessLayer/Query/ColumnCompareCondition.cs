@@ -15,19 +15,9 @@ namespace RobinManzl.DataAccessLayer.Query
         public override ConditionType ConditionType => ConditionType.ValueCompare;
 
         /// <summary>
-        /// Die Angabe des Tabellennamens der ersten Spalte
-        /// </summary>
-        public string FirstTableName { get; set; }
-
-        /// <summary>
         /// Die Angabe des ersten Spaltennamens
         /// </summary>
         public string FirstAttributeName { get; set; }
-
-        /// <summary>
-        /// Die Angabe des Tabellennamens der zweiten Spalte
-        /// </summary>
-        public string SecondTableName { get; set; }
 
         /// <summary>
         /// Die Angabe des zweiten Spaltennamens
@@ -39,28 +29,15 @@ namespace RobinManzl.DataAccessLayer.Query
         /// </summary>
         public Operator Operator { get; set; }
 
-        internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters, string tableName)
+        internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameterse)
         {
-            if (FirstTableName == null)
-            {
-                FirstTableName = tableName;
-            }
-            if (SecondTableName == null)
-            {
-                SecondTableName = tableName;
-            }
-
             stringBuilder.Append("[");
-            stringBuilder.Append(FirstTableName);
-            stringBuilder.Append("].[");
             stringBuilder.Append(FirstAttributeName);
             stringBuilder.Append("] ");
 
             stringBuilder.Append(Operator.ConvertToSql());
 
             stringBuilder.Append("[");
-            stringBuilder.Append(SecondAttributeName);
-            stringBuilder.Append("].[");
             stringBuilder.Append(SecondAttributeName);
             stringBuilder.Append("]");
         }

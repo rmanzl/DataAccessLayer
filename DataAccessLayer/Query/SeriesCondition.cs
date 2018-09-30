@@ -24,13 +24,13 @@ namespace RobinManzl.DataAccessLayer.Query
         /// </summary>
         public LogicalOperator LogicalOperator { get; set; }
 
-        internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters, string tableName)
+        internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters)
         {
             stringBuilder.Append("(");
 
             foreach (var condition in Conditions)
             {
-                condition.GenerateConditionString(stringBuilder, parameters, tableName);
+                condition.GenerateConditionString(stringBuilder, parameters);
 
                 stringBuilder.Append(" ");
                 stringBuilder.Append(LogicalOperator.ToString().ToUpper());

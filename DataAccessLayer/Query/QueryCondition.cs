@@ -15,7 +15,7 @@ namespace RobinManzl.DataAccessLayer.Query
         /// </summary>
         public abstract ConditionType ConditionType { get; }
 
-        internal abstract void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters, string tableName);
+        internal abstract void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters);
 
     }
 

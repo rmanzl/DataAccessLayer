@@ -29,16 +29,16 @@ namespace RobinManzl.DataAccessLayer.Query
         /// </summary>
         public LogicalOperator LogicalOperator { get; set; }
 
-        internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters, string tableName)
+        internal override void GenerateConditionString(StringBuilder stringBuilder, Dictionary<string, object> parameters)
         {
             stringBuilder.Append("(");
-            LeftCondition.GenerateConditionString(stringBuilder, parameters, tableName);
+            LeftCondition.GenerateConditionString(stringBuilder, parameters);
 
             stringBuilder.Append(" ");
             stringBuilder.Append(LogicalOperator.ToString().ToUpper());
             stringBuilder.Append(" ");
 
-            RightCondition.GenerateConditionString(stringBuilder, parameters, tableName);
+            RightCondition.GenerateConditionString(stringBuilder, parameters);
             stringBuilder.Append(")");
         }
 
