@@ -7,7 +7,7 @@ using RobinManzl.DataAccessLayer.Query;
 
 namespace RobinManzl.DataAccessLayer.Internal
 {
-    
+
     internal class ScriptGenerator<T>
         where T : IEntity, new()
     {
@@ -31,18 +31,23 @@ namespace RobinManzl.DataAccessLayer.Internal
             _properties = properties;
             _tableSpecificProperties = _properties.Where(prop => !prop.Name.Equals(nameof(IEntity.Id))).ToList();
 
-            var tableAttribute = typeof(T).GetCustomAttribute<TableBaseAttribute>();
-            if (tableAttribute != null)
+            TableBaseAttribute attribute = typeof(T).GetCustomAttribute<TableAttribute>();
+            if (attribute == null)
+            {
+                attribute = typeof(T).GetCustomAttribute<ViewAttribute>();
+            }
+
+            if (attribute != null)
             {
                 _tableName = "";
-                if (tableAttribute.Schema != null)
+                if (attribute.Schema != null)
                 {
-                    _tableName += tableAttribute.Schema + "].[";
+                    _tableName += attribute.Schema + "].[";
                 }
 
-                if (tableAttribute.Name != null)
+                if (attribute.Name != null)
                 {
-                    _tableName += tableAttribute.Name;
+                    _tableName += attribute.Name;
                 }
                 else
                 {
@@ -54,7 +59,7 @@ namespace RobinManzl.DataAccessLayer.Internal
                 _tableName = typeof(T).Name;
             }
         }
-        
+
         public string GetSelectQuery()
         {
             if (_selectQuery == null)
@@ -81,7 +86,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 
             return _selectQuery;
         }
-        
+
         public string GetSelectQuery(Dictionary<string, object> parameters, QueryCondition queryCondition = null, QueryOptions queryOptions = null)
         {
             var selectQuery = GetSelectQuery();
@@ -123,7 +128,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 
             return stringBuilder.ToString();
         }
-        
+
         public string GetInsertQuery()
         {
             if (_insertQuery == null)
@@ -150,7 +155,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 
             return _insertQuery;
         }
-        
+
         public string GetUpdateQuery()
         {
             if (_updateQuery == null)
@@ -171,7 +176,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 
             return _updateQuery;
         }
-        
+
         public string GetDeleteQuery()
         {
             if (_deleteQuery == null)
