@@ -106,15 +106,13 @@ namespace RobinManzl.DataAccessLayer.Internal
                                 SecondAttributeName = secondName
                             };
                         }
-                        else
+
+                        return new ValueCompareCondition()
                         {
-                            return new ValueCompareCondition()
-                            {
-                                AttributeName = name,
-                                Operator = op,
-                                Value = GetValue(secondProperty)
-                            };
-                        }
+                            AttributeName = name,
+                            Operator = op,
+                            Value = GetValue(secondProperty)
+                        };
                     }
                     
                 default:

@@ -18,6 +18,8 @@ namespace RobinManzl.DataAccessLayer.Internal
 
         private readonly string _tableName;
 
+        private readonly string _primaryKeyName;
+
         private string _selectQuery;
 
         private string _insertQuery;
@@ -29,7 +31,18 @@ namespace RobinManzl.DataAccessLayer.Internal
         public ScriptGenerator(List<PropertyInfo> properties)
         {
             _properties = properties;
-            _tableSpecificProperties = _properties.Where(prop => !prop.Name.Equals(nameof(IEntity.Id))).ToList();
+
+            foreach (var property in properties)
+            {
+                var primaryKeyAttribute = property.GetCustomAttribute<PrimaryKeyAttribute>();
+                if (primaryKeyAttribute != null)
+                {
+                    _primaryKeyName = property.Name;
+                    break;
+                }
+            }
+
+            _tableSpecificProperties = _properties.Where(prop => !prop.Name.Equals(_primaryKeyName)).ToList();
 
             TableBaseAttribute attribute = typeof(T).GetCustomAttribute<TableAttribute>();
             if (attribute == null)
@@ -147,7 +160,7 @@ namespace RobinManzl.DataAccessLayer.Internal
                 })));
                 stringBuilder.AppendLine("])");
 
-                stringBuilder.AppendLine("OUTPUT INSERTED.[Id]");
+                stringBuilder.AppendLine($"OUTPUT INSERTED.[{_primaryKeyName}]");
                 stringBuilder.AppendLine("VALUES");
 
                 stringBuilder.Append("(@");
@@ -178,7 +191,7 @@ namespace RobinManzl.DataAccessLayer.Internal
                     return name + "] = @" + name;
                 })));
 
-                stringBuilder.Append("WHERE [Id] = @Id");
+                stringBuilder.Append($"WHERE [{_primaryKeyName}] = @{_primaryKeyName}");
 
                 _updateQuery = stringBuilder.ToString();
             }
@@ -196,7 +209,7 @@ namespace RobinManzl.DataAccessLayer.Internal
                 stringBuilder.Append(_tableName);
                 stringBuilder.AppendLine("]");
 
-                stringBuilder.Append("WHERE [Id] = @Id");
+                stringBuilder.Append($"WHERE[{ _primaryKeyName}] = @{ _primaryKeyName}");
 
                 _deleteQuery = stringBuilder.ToString();
             }
