@@ -38,6 +38,8 @@ namespace RobinManzl.DataAccessLayer
 
         private readonly string _deleteProcedure;
 
+        private readonly PropertyInfo _primaryKeyProperty;
+
         private readonly ScriptGenerator<T> _scriptGenerator;
 
         private readonly EntityParser<T> _entityParser;
@@ -77,7 +79,25 @@ namespace RobinManzl.DataAccessLayer
             }
 
             var properties = GetProperties();
-            _scriptGenerator = new ScriptGenerator<T>(properties);
+
+            var primaryKeyName = "Id";
+            foreach (var property in properties)
+            {
+                var primaryKeyAttribute = property.GetCustomAttribute<PrimaryKeyAttribute>();
+                if (primaryKeyAttribute != null)
+                {
+                    _primaryKeyProperty = property;
+                    primaryKeyName = property.Name;
+                    break;
+                }
+            }
+
+            if (_primaryKeyProperty == null)
+            {
+                _primaryKeyProperty = properties.First(prop => prop.Name == "Id");
+            }
+
+            _scriptGenerator = new ScriptGenerator<T>(properties, primaryKeyName);
             _entityParser = new EntityParser<T>(properties);
         }
 
@@ -408,7 +428,7 @@ namespace RobinManzl.DataAccessLayer
                     _logger?.Debug(GenerateLoggingMessage(command));
 
                     var result = (int)command.ExecuteScalar();
-                    entity.Id = result;
+                    _primaryKeyProperty.SetValue(entity, result);
 
                     return true;
                 }

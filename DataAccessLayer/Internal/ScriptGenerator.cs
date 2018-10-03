@@ -28,19 +28,11 @@ namespace RobinManzl.DataAccessLayer.Internal
 
         private string _deleteQuery;
 
-        public ScriptGenerator(List<PropertyInfo> properties)
+        public ScriptGenerator(List<PropertyInfo> properties, string primaryKeyName)
         {
             _properties = properties;
 
-            foreach (var property in properties)
-            {
-                var primaryKeyAttribute = property.GetCustomAttribute<PrimaryKeyAttribute>();
-                if (primaryKeyAttribute != null)
-                {
-                    _primaryKeyName = property.Name;
-                    break;
-                }
-            }
+            _primaryKeyName = primaryKeyName;
 
             _tableSpecificProperties = _properties.Where(prop => !prop.Name.Equals(_primaryKeyName)).ToList();
 
