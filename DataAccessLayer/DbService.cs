@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using NLog;
 using RobinManzl.DataAccessLayer.Attributes;
 using RobinManzl.DataAccessLayer.Internal;
 using RobinManzl.DataAccessLayer.Query;
@@ -99,6 +100,20 @@ namespace RobinManzl.DataAccessLayer
 
             _scriptGenerator = new ScriptGenerator<T>(properties, primaryKeyName);
             _entityParser = new EntityParser<T>(properties);
+        }
+
+        /// <summary>
+        /// Erstellt eine neue Instanz eines DbServices für eine bestimmte Entity-Klasse
+        /// </summary>
+        /// <param name="connection">
+        /// Die SqlConnection, welche für die Datenbank-Verbindungen verwendet wird
+        /// </param>
+        /// <param name="logger">
+        /// Die NLog-Logger-Instanz, welche bei allen Vorgängen verwendet wird
+        /// </param>
+        public DbService(SqlConnection connection, Logger logger)
+            : this(connection, new NLogWrapper(logger))
+        {
         }
 
         private static List<PropertyInfo> GetProperties()
