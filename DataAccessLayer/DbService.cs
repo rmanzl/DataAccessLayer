@@ -778,11 +778,14 @@ namespace RobinManzl.DataAccessLayer
             var message = "Execute statement: {";
 
             message += command.CommandText;
-            message += "} - {@";
-
-            message += string.Join(", @", command.Parameters.Cast<SqlParameter>().Select(par => par.ParameterName + " = '" + par.Value + "'"));
-
             message += "}";
+
+            if (command.Parameters.Count > 0)
+            {
+                message += " - {@";
+                message += string.Join(", @", command.Parameters.Cast<SqlParameter>().Select(par => par.ParameterName + " = '" + par.Value + "'"));
+                message += "}";
+            }
 
             return message;
         }
