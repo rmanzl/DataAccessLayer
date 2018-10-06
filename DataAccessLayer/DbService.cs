@@ -85,7 +85,7 @@ namespace RobinManzl.DataAccessLayer
             var primaryKeyName = "Id";
             foreach (var property in properties)
             {
-                _logger?.Info($"Entity {typeof(T).Name} contains property '{property.Name}' mapping db field [{property.GetCustomAttribute<ColumnAttribute>().Name ?? property.Name}]");
+                _logger?.Debug($"Entity {typeof(T).Name} contains property '{property.Name}' mapping db field [{property.GetCustomAttribute<ColumnAttribute>().Name ?? property.Name}]");
 
                 var primaryKeyAttribute = property.GetCustomAttribute<PrimaryKeyAttribute>();
                 if (primaryKeyAttribute != null)
@@ -100,7 +100,7 @@ namespace RobinManzl.DataAccessLayer
                 _primaryKeyProperty = properties.First(prop => prop.Name == "Id");
             }
 
-            _logger?.Info($"Primary key property of entity {typeof(T).Name}: {_primaryKeyProperty.Name}");
+            _logger?.Debug($"Primary key property of entity {typeof(T).Name}: {_primaryKeyProperty.Name}");
 
             _scriptGenerator = new ScriptGenerator<T>(properties, primaryKeyName);
             _entityParser = new EntityParser<T>(properties);
