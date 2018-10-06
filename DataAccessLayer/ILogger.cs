@@ -34,7 +34,7 @@ namespace RobinManzl.DataAccessLayer
         /// <param name="exception">
         /// Die aufgetretene Ausnahme
         /// </param>
-        void Warning(string message, Exception exception);
+        void Warning(string message, Exception exception = null);
 
         /// <summary>
         /// Loggt eine Nachricht unter dem Log-Level ERROR

@@ -153,10 +153,15 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public SqlTransaction BeginTransaction(SqlTransaction transaction = null)
         {
+            _logger?.Debug(nameof(BeginTransaction));
+
             lock (_lock)
             {
+                _logger?.Info("Beginning transaction");
+
                 if (_connection.State != ConnectionState.Open)
                 {
+                    _logger?.Info("Opening connection");
                     _connection.Open();
                 }
 
@@ -171,12 +176,17 @@ namespace RobinManzl.DataAccessLayer
         /// </summary>
         public void RemoveTransaction()
         {
+            _logger?.Debug(nameof(RemoveTransaction));
+
             lock (_lock)
             {
+                _logger?.Info("Removing transaction");
+
                 _currentTransaction = null;
 
                 if (_connection.State == ConnectionState.Open)
                 {
+                    _logger?.Info("Closing connection");
                     _connection.Close();
                 }
             }
@@ -196,12 +206,15 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetEntities(QueryCondition queryCondition = null, QueryOptions options = null)
         {
+            _logger?.Debug(nameof(GetEntities));
+
             lock (_lock)
             {
                 var opened = _connection.State != ConnectionState.Open;
 
                 if (opened)
                 {
+                    _logger?.Info("Opening connection");
                     _connection.Open();
                 }
 
@@ -230,7 +243,7 @@ namespace RobinManzl.DataAccessLayer
                         command.Parameters.AddWithValue(parameter.Key, parameter.Value);
                     }
 
-                    _logger?.Debug(GenerateLoggingMessage(command));
+                    _logger?.Info(GenerateLoggingMessage(command));
 
                     var reader = command.ExecuteReader();
 
@@ -243,6 +256,8 @@ namespace RobinManzl.DataAccessLayer
                     reader.Close();
                     reader.Dispose();
 
+                    _logger?.Info($"Returned {entities.Count} rows from database");
+
                     return entities;
                 }
                 catch (Exception exception)
@@ -252,6 +267,7 @@ namespace RobinManzl.DataAccessLayer
 
                     if (_currentTransaction != null)
                     {
+                        _logger?.Info("Rollback transaction and closing connection");
                         _currentTransaction.Rollback();
                         _currentTransaction = null;
                         _connection.Close();
@@ -263,6 +279,7 @@ namespace RobinManzl.DataAccessLayer
                 {
                     if (opened)
                     {
+                        _logger?.Info("Closing connection");
                         _connection.Close();
                     }
                 }
@@ -283,6 +300,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetEntities(Expression<Func<T, bool>> expression, QueryOptions options = null)
         {
+            _logger?.Debug(nameof(GetEntities));
+
             return GetEntities(ExpressionConverter.ToQueryCondition(expression, typeof(T)), options);
         }
 
@@ -297,6 +316,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetEntities(QueryOptions options)
         {
+            _logger?.Debug(nameof(GetEntities));
+
             return GetEntities((QueryCondition)null, options);
         }
 
@@ -311,6 +332,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetEntityById(int id)
         {
+            _logger?.Debug(nameof(GetEntityById));
+
             var entities = GetEntities(new ValueCompareCondition
             {
                 AttributeName = nameof(IEntity.Id),
@@ -335,6 +358,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetTopNEntities(int count, QueryCondition queryCondition = null)
         {
+            _logger?.Debug(nameof(GetTopNEntities));
+
             return GetEntities(queryCondition, new QueryOptions()
             {
                 MaxRowCount = count
@@ -355,6 +380,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetTopNEntities(int count, Expression<Func<T, bool>> expression)
         {
+            _logger?.Debug(nameof(GetTopNEntities));
+
             return GetTopNEntities(count, ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }
 
@@ -369,6 +396,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetFirstEntity(QueryCondition queryCondition = null)
         {
+            _logger?.Debug(nameof(GetFirstEntity));
+
             return GetEntities(queryCondition, new QueryOptions()
             {
                 MaxRowCount = 1
@@ -386,6 +415,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetFirstEntity(Expression<Func<T, bool>> expression)
         {
+            _logger?.Debug(nameof(GetFirstEntity));
+
             return GetFirstEntity(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }
 
@@ -400,6 +431,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetFirstOrDefaultEntity(QueryCondition queryCondition = null)
         {
+            _logger?.Debug(nameof(GetFirstOrDefaultEntity));
+
             return GetEntities(queryCondition, new QueryOptions()
             {
                 MaxRowCount = 1
@@ -417,6 +450,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetFirstOrDefaultEntity(Expression<Func<T, bool>> expression)
         {
+            _logger?.Debug(nameof(GetFirstOrDefaultEntity));
+
             return GetFirstOrDefaultEntity(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }
 
@@ -431,9 +466,12 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool InsertEntity(T entity)
         {
+            _logger?.Debug(nameof(InsertEntity));
+
             if (_isView &&
                 _insertProcedure == null)
             {
+                _logger?.Warning("Trying to insert row into view without specifying a stored procedure");
                 LastErrorMessage = "Cannot insert entity into a view";
                 return false;
             }
@@ -472,7 +510,7 @@ namespace RobinManzl.DataAccessLayer
 
                     AssignParameters(entity, command);
 
-                    _logger?.Debug(GenerateLoggingMessage(command));
+                    _logger?.Info(GenerateLoggingMessage(command));
 
                     var result = (int)command.ExecuteScalar();
                     _primaryKeyProperty.SetValue(entity, result);
@@ -486,6 +524,7 @@ namespace RobinManzl.DataAccessLayer
 
                     if (_currentTransaction != null)
                     {
+                        _logger?.Info("Rollback transaction and closing connection");
                         _currentTransaction.Rollback();
                         _currentTransaction = null;
                         _connection.Close();
@@ -497,6 +536,7 @@ namespace RobinManzl.DataAccessLayer
                 {
                     if (opened)
                     {
+                        _logger?.Info("Closing connection");
                         _connection.Close();
                     }
                 }
@@ -514,9 +554,12 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool UpdateEntity(T entity)
         {
+            _logger?.Debug(nameof(UpdateEntity));
+
             if (_isView &&
                 _updateProcedure == null)
             {
+                _logger?.Warning("Trying to update row of view without specifying a stored procedure");
                 LastErrorMessage = "Cannot update entity of a view";
                 return false;
             }
@@ -555,7 +598,7 @@ namespace RobinManzl.DataAccessLayer
 
                     AssignParameters(entity, command);
 
-                    _logger?.Debug(GenerateLoggingMessage(command));
+                    _logger?.Info(GenerateLoggingMessage(command));
 
                     command.ExecuteNonQuery();
 
@@ -568,6 +611,7 @@ namespace RobinManzl.DataAccessLayer
 
                     if (_currentTransaction != null)
                     {
+                        _logger?.Info("Rollback transaction and closing connection");
                         _currentTransaction.Rollback();
                         _currentTransaction = null;
                         _connection.Close();
@@ -579,6 +623,7 @@ namespace RobinManzl.DataAccessLayer
                 {
                     if (opened)
                     {
+                        _logger?.Info("Closing connection");
                         _connection.Close();
                     }
                 }
@@ -617,9 +662,12 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool DeleteEntity(int entityId)
         {
+            _logger?.Debug(nameof(DeleteEntity));
+
             if (_isView &&
                 _deleteProcedure == null)
             {
+                _logger?.Warning("Trying to delete row of view without specifying a stored procedure");
                 LastErrorMessage = "Cannot delete entity of a view";
                 return false;
             }
@@ -658,7 +706,7 @@ namespace RobinManzl.DataAccessLayer
 
                     command.Parameters.AddWithValue(nameof(IEntity.Id), entityId);
 
-                    _logger?.Debug(GenerateLoggingMessage(command));
+                    _logger?.Info(GenerateLoggingMessage(command));
 
                     command.ExecuteNonQuery();
 
@@ -671,6 +719,7 @@ namespace RobinManzl.DataAccessLayer
 
                     if (_currentTransaction != null)
                     {
+                        _logger?.Info("Rollback transaction and closing connection");
                         _currentTransaction.Rollback();
                         _currentTransaction = null;
                         _connection.Close();
@@ -682,6 +731,7 @@ namespace RobinManzl.DataAccessLayer
                 {
                     if (opened)
                     {
+                        _logger?.Info("Closing connection");
                         _connection.Close();
                     }
                 }
@@ -699,8 +749,11 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool DeleteEntities(QueryCondition queryCondition)
         {
+            _logger?.Debug(nameof(DeleteEntities));
+
             if (_isView)
             {
+                _logger?.Warning("Deleting rows of view with a query condition is not supported");
                 LastErrorMessage = "Cannot delete entities of a view";
                 return false;
             }
@@ -729,7 +782,7 @@ namespace RobinManzl.DataAccessLayer
                         command.Parameters.AddWithValue(parameter.Key, parameter.Value);
                     }
 
-                    _logger?.Debug(GenerateLoggingMessage(command));
+                    _logger?.Info(GenerateLoggingMessage(command));
 
                     command.ExecuteNonQuery();
 
@@ -742,6 +795,7 @@ namespace RobinManzl.DataAccessLayer
 
                     if (_currentTransaction != null)
                     {
+                        _logger?.Info("Rollback transaction and closing connection");
                         _currentTransaction.Rollback();
                         _currentTransaction = null;
                         _connection.Close();
@@ -753,6 +807,7 @@ namespace RobinManzl.DataAccessLayer
                 {
                     if (opened)
                     {
+                        _logger?.Info("Closing connection");
                         _connection.Close();
                     }
                 }
@@ -770,6 +825,8 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool DeleteEntities(Expression<Func<T, bool>> expression)
         {
+            _logger?.Debug(nameof(DeleteEntities));
+
             return DeleteEntities(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }
 
