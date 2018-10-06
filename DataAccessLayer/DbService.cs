@@ -68,6 +68,7 @@ namespace RobinManzl.DataAccessLayer
             _connection = connection;
 
             _logger = logger;
+            _logger?.Info($"Creating DbService for entity {typeof(T).FullName}");
 
             var viewAttribute = typeof(T).GetCustomAttribute<ViewAttribute>();
             if (viewAttribute != null)
@@ -84,12 +85,13 @@ namespace RobinManzl.DataAccessLayer
             var primaryKeyName = "Id";
             foreach (var property in properties)
             {
+                _logger?.Info($"Entity {typeof(T).Name} contains property '{property.Name}' mapping db field [{property.GetCustomAttribute<ColumnAttribute>().Name ?? property.Name}]");
+
                 var primaryKeyAttribute = property.GetCustomAttribute<PrimaryKeyAttribute>();
                 if (primaryKeyAttribute != null)
                 {
                     _primaryKeyProperty = property;
                     primaryKeyName = property.Name;
-                    break;
                 }
             }
 
@@ -97,6 +99,8 @@ namespace RobinManzl.DataAccessLayer
             {
                 _primaryKeyProperty = properties.First(prop => prop.Name == "Id");
             }
+
+            _logger?.Info($"Primary key property of entity {typeof(T).Name}: {_primaryKeyProperty.Name}");
 
             _scriptGenerator = new ScriptGenerator<T>(properties, primaryKeyName);
             _entityParser = new EntityParser<T>(properties);
@@ -252,7 +256,7 @@ namespace RobinManzl.DataAccessLayer
                     {
                         entities.Add(_entityParser.ParseEntity(reader));
                     }
-                    
+
                     reader.Close();
                     reader.Dispose();
 
