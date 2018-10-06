@@ -130,12 +130,8 @@ namespace RobinManzl.DataAccessLayer
         /// Gibt an, ob eine NLog-Instanz erstellt und verwendet werden soll
         /// </param>
         public DbService(SqlConnection connection, bool useNLog)
-            : this(connection)
+            : this(connection, useNLog ? new NLogWrapper(LogManager.GetCurrentClassLogger()) : null)
         {
-            if (useNLog)
-            {
-                _logger = new NLogWrapper(LogManager.GetCurrentClassLogger());
-            }
         }
 
         private static List<PropertyInfo> GetProperties()
