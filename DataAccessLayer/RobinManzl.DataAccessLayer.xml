@@ -132,6 +132,17 @@
             Die NLog-Logger-Instanz, welche bei allen Vorgängen verwendet wird
             </param>
         </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.#ctor(System.Data.SqlClient.SqlConnection,System.Boolean)">
+            <summary>
+            Erstellt eine neue Instanz eines DbServices für eine bestimmte Entity-Klasse
+            </summary>
+            <param name="connection">
+            Die SqlConnection, welche für die Datenbank-Verbindungen verwendet wird
+            </param>
+            <param name="useNLog">
+            Gibt an, ob eine NLog-Instanz erstellt und verwendet werden soll
+            </param>
+        </member>
         <member name="M:RobinManzl.DataAccessLayer.DbService`1.BeginTransaction(System.Data.SqlClient.SqlTransaction)">
             <summary>
             Startet eine neue Transaktion oder übernimmt die angegebene Transaktion
@@ -169,6 +180,17 @@
             <param name="expression">
             Spezifiziert die WHERE-Klausel der Abfrage
             </param>
+            <param name="options">
+            Kann verwendet werden, um Optionen für die Abfrage anzugeben
+            </param>
+            <returns>
+            Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetEntities(RobinManzl.DataAccessLayer.Query.QueryOptions)">
+            <summary>
+            Führt eine Abfrage gegen die Tabelle aus
+            </summary>
             <param name="options">
             Kann verwendet werden, um Optionen für die Abfrage anzugeben
             </param>

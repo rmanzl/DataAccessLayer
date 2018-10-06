@@ -116,6 +116,24 @@ namespace RobinManzl.DataAccessLayer
         {
         }
 
+        /// <summary>
+        /// Erstellt eine neue Instanz eines DbServices für eine bestimmte Entity-Klasse
+        /// </summary>
+        /// <param name="connection">
+        /// Die SqlConnection, welche für die Datenbank-Verbindungen verwendet wird
+        /// </param>
+        /// <param name="useNLog">
+        /// Gibt an, ob eine NLog-Instanz erstellt und verwendet werden soll
+        /// </param>
+        public DbService(SqlConnection connection, bool useNLog)
+            : this(connection)
+        {
+            if (useNLog)
+            {
+                _logger = new NLogWrapper(LogManager.GetCurrentClassLogger());
+            }
+        }
+
         private static List<PropertyInfo> GetProperties()
         {
             var properties = typeof(T).GetRuntimeProperties();
@@ -266,6 +284,20 @@ namespace RobinManzl.DataAccessLayer
         public List<T> GetEntities(Expression<Func<T, bool>> expression, QueryOptions options = null)
         {
             return GetEntities(ExpressionConverter.ToQueryCondition(expression, typeof(T)), options);
+        }
+
+        /// <summary>
+        /// Führt eine Abfrage gegen die Tabelle aus
+        /// </summary>
+        /// <param name="options">
+        /// Kann verwendet werden, um Optionen für die Abfrage anzugeben
+        /// </param>
+        /// <returns>
+        /// Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+        /// </returns>
+        public List<T> GetEntities(QueryOptions options)
+        {
+            return GetEntities((QueryCondition)null, options);
         }
 
         /// <summary>
