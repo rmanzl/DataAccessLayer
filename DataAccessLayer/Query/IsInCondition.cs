@@ -16,11 +16,6 @@ namespace RobinManzl.DataAccessLayer.Query
         public override ConditionType ConditionType => ConditionType.ValueCompare;
 
         /// <summary>
-        /// Die Angabe des Tabellennamens
-        /// </summary>
-        public string TableName { get; set; }
-
-        /// <summary>
         /// Die Angabe des Spaltennamens
         /// </summary>
         public string AttributeName { get; set; }
@@ -42,10 +37,6 @@ namespace RobinManzl.DataAccessLayer.Query
                 stringBuilder.Append("1 = 0");
                 return;
             }
-
-            stringBuilder.Append("[");
-            stringBuilder.Append(TableName);
-            stringBuilder.Append("].");
 
             stringBuilder.Append("[");
             stringBuilder.Append(AttributeName);

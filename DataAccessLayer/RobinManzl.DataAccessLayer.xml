@@ -463,11 +463,6 @@
         <member name="P:RobinManzl.DataAccessLayer.Query.IsInCondition.ConditionType">
             <inheritdoc />
         </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.IsInCondition.TableName">
-            <summary>
-            Die Angabe des Tabellennamens
-            </summary>
-        </member>
         <member name="P:RobinManzl.DataAccessLayer.Query.IsInCondition.AttributeName">
             <summary>
             Die Angabe des Spaltennamens
