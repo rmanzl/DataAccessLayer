@@ -76,13 +76,13 @@ namespace RobinManzl.DataAccessLayer.Internal
                         name = attribute.Name;
                     }
 
-                    if (exp.Right is ConstantExpression value)
+                    if (exp.Right is ConstantExpression constantExpression)
                     {
                         return new ValueCompareCondition()
                         {
                             AttributeName = name,
                             Operator = op,
-                            Value = value
+                            Value = constantExpression.Value
                         };
                     }
                     else
