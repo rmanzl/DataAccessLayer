@@ -6,10 +6,10 @@
     <Authors>Robin Manzl</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>RobinManzl.DataAccessLayer</RootNamespace>
-    <Version>1.3.11</Version>
-    <AssemblyVersion>1.3.11.0</AssemblyVersion>
-    <FileVersion>1.3.11.0</FileVersion>
-    <PackageReleaseNotes>BugFix GetEntities mittels Expression (konstante Werte waren nicht unterstützt)</PackageReleaseNotes>
+    <Version>1.3.12</Version>
+    <AssemblyVersion>1.3.12.0</AssemblyVersion>
+    <FileVersion>1.3.12.0</FileVersion>
+    <PackageReleaseNotes>TryGetEntityById hinzugefügt</PackageReleaseNotes>
     <Description>Leichtgewichtiges Framework um Daten einer Datenbank des Microsoft SQL Servers (auch Azure SQL) abzufragen und auf benutzerdefinierte Klassen zu mappen. Möglich sind alle CRUD-Operationen und auch die Abfrage von Daten aus Views wird unterstützt.</Description>
     <Copyright>Robin Manzl</Copyright>
     <NeutralLanguage>de</NeutralLanguage>

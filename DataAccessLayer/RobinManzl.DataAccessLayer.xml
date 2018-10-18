@@ -209,6 +209,17 @@
             Gibt die gefundene Zeile als Objekt zurück
             </returns>
         </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.TryGetEntityById(System.Int32)">
+            <summary>
+            Frägt eine Zeile der Tabelle anhand ihres Primärschlüssels ab, falls diese existiert
+            </summary>
+            <param name="id">
+            Der Wert des Primärschlüsselss
+            </param>
+            <returns>
+            Gibt die gefundene Zeile als Objekt oder NULL zurück
+            </returns>
+        </member>
         <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetTopNEntities(System.Int32,RobinManzl.DataAccessLayer.Query.QueryCondition)">
             <summary>
             Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die ersten <code>count</code> Zeilen zurück

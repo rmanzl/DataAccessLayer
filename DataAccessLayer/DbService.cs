@@ -345,6 +345,29 @@ namespace RobinManzl.DataAccessLayer
         }
 
         /// <summary>
+        /// Frägt eine Zeile der Tabelle anhand ihres Primärschlüssels ab, falls diese existiert
+        /// </summary>
+        /// <param name="id">
+        /// Der Wert des Primärschlüsselss
+        /// </param>
+        /// <returns>
+        /// Gibt die gefundene Zeile als Objekt oder NULL zurück
+        /// </returns>
+        public T TryGetEntityById(int id)
+        {
+            _logger?.Debug(nameof(GetEntityById));
+
+            var entities = GetEntities(new ValueCompareCondition
+            {
+                AttributeName = nameof(IEntity.Id),
+                Value = id,
+                Operator = Operator.Equals
+            });
+
+            return entities.SingleOrDefault();
+        }
+
+        /// <summary>
         /// Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die ersten <code>count</code> Zeilen zurück
         /// </summary>
         /// <param name="count">
