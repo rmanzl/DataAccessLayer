@@ -650,6 +650,18 @@
             Wird verwendet, um die Sortier-Richtung zu spezifizieren
             </summary>
         </member>
+        <member name="M:RobinManzl.DataAccessLayer.Query.OrderByOption.#ctor">
+            <summary>
+            Standard-Konstruktor
+            </summary>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.Query.OrderByOption.#ctor(System.String,RobinManzl.DataAccessLayer.Query.SortDirection)">
+            <summary>
+            Konstrukor zur Erstellung einer OrderByOption-Instanz
+            </summary>
+            <param name="column">Die Angabe des Spaltennamens</param>
+            <param name="sortDirection">Die Angabe der Sortier-Richtung</param>
+        </member>
         <member name="T:RobinManzl.DataAccessLayer.Query.QueryCondition">
             <summary>
             Stellt die Basis aller Abfragemöglichkeiten dar

@@ -18,6 +18,24 @@ namespace RobinManzl.DataAccessLayer.Query
         /// </summary>
         public SortDirection SortDirection { get; set; } = SortDirection.Ascending;
 
+        /// <summary>
+        /// Standard-Konstruktor
+        /// </summary>
+        public OrderByOption()
+        {
+        }
+
+        /// <summary>
+        /// Konstrukor zur Erstellung einer OrderByOption-Instanz
+        /// </summary>
+        /// <param name="column">Die Angabe des Spaltennamens</param>
+        /// <param name="sortDirection">Die Angabe der Sortier-Richtung</param>
+        public OrderByOption(string column, SortDirection sortDirection = SortDirection.Ascending)
+        {
+            Column = column;
+            SortDirection = sortDirection;
+        }
+
     }
 
 }
