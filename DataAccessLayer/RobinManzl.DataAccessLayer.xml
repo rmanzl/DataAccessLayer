@@ -675,5 +675,20 @@
             Wird zur Angabe der Sortier-Optionen verwendet
             </summary>
         </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.SortDirection">
+            <summary>
+            Die ANgabe der Sortier-Rsichtung
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.SortDirection.Ascending">
+            <summary>
+            Aufsteigende Sortierung
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.SortDirection.Descending">
+            <summary>
+            Absteigende Sortierung
+            </summary>
+        </member>
     </members>
 </doc>
