@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RobinManzl.DataAccessLayer.Query
+namespace RobinManzl.DataAccessLayer.Query.Conditions
 {
 
     /// <inheritdoc />

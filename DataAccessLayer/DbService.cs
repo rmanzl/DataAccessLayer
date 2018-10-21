@@ -9,6 +9,7 @@ using NLog;
 using RobinManzl.DataAccessLayer.Attributes;
 using RobinManzl.DataAccessLayer.Internal;
 using RobinManzl.DataAccessLayer.Query;
+using RobinManzl.DataAccessLayer.Query.Conditions;
 
 namespace RobinManzl.DataAccessLayer
 {

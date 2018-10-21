@@ -411,26 +411,136 @@
             Die aufgetretene Ausnahme
             </param>
         </member>
-        <member name="T:RobinManzl.DataAccessLayer.Query.ColumnCompareCondition">
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.ColumnCompareCondition">
             <inheritdoc />
             <summary>
             Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit einer anderen Spalte dar
             </summary>
         </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.ColumnCompareCondition.ConditionType">
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ColumnCompareCondition.ConditionType">
             <inheritdoc />
         </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.ColumnCompareCondition.FirstAttributeName">
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ColumnCompareCondition.FirstAttributeName">
             <summary>
             Die Angabe des ersten Spaltennamens
             </summary>
         </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.ColumnCompareCondition.SecondAttributeName">
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ColumnCompareCondition.SecondAttributeName">
             <summary>
             Die Angabe des zweiten Spaltennamens
             </summary>
         </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.ColumnCompareCondition.Operator">
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ColumnCompareCondition.Operator">
+            <summary>
+            Der Vergleichsoperator, der für einen Wert- oder Spaltenvergleich verwendet werden soll
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.IsInCondition">
+            <inheritdoc />
+            <summary>
+            Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit angegebenen Werten dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.IsInCondition.ConditionType">
+            <inheritdoc />
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.IsInCondition.AttributeName">
+            <summary>
+            Die Angabe des Spaltennamens
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.IsInCondition.Values">
+            <summary>
+            Die Angabe der Werte, auf welche geprüft werden soll
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.IsInCondition.ShouldBeIn">
+            <summary>
+            Gibt an, ob der Sapltenwert in den angebenen Werten enthalten sein muss, oder ob er nicht enthalten sein darf
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.LogicalCondition">
+            <inheritdoc />
+            <summary>
+            Stellt eine logische Verkettung zweier Abfrageknoten dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.LogicalCondition.ConditionType">
+            <inheritdoc />
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.LogicalCondition.LeftCondition">
+            <summary>
+            Der linke Knoten der Verkettung
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.LogicalCondition.RightCondition">
+            <summary>
+            Der rechte Knoten der Verkettung
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.LogicalCondition.LogicalOperator">
+            <summary>
+            Der logische Operator, welcher für die Verkettung verwendet werden soll
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.NullCompareCondition">
+            <inheritdoc />
+            <summary>
+            Stellt eine Bedingung mit einem Wertvergleich einer Spalte auf NULL dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.NullCompareCondition.ConditionType">
+            <inheritdoc />
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.NullCompareCondition.AttributeName">
+            <summary>
+            Die Angabe des Spaltennamens
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.NullCompareCondition.ShouldBeNull">
+            <summary>
+            Gibt an, ob der Wert der Spalte auf NULL oder NOT NULL geprüft werden soll
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.SeriesCondition">
+            <inheritdoc />
+            <summary>
+            Stellt eine logische Verkettung mehrerer Abfrageknoten dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.SeriesCondition.ConditionType">
+            <inheritdoc />
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.SeriesCondition.Conditions">
+            <summary>
+            Der Knoten, welche für eine Verkettung verwendet werden sollen
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.SeriesCondition.LogicalOperator">
+            <summary>
+            Der logische Operator, welcher für die Verkettung verwendet werden soll
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.ValueCompareCondition">
+            <inheritdoc />
+            <summary>
+            Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit einem angegebenen Wert dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ValueCompareCondition.ConditionType">
+            <inheritdoc />
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ValueCompareCondition.AttributeName">
+            <summary>
+            Die Angabe des Spaltennamens
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ValueCompareCondition.Value">
+            <summary>
+            Die Angabe des Wertes
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ValueCompareCondition.Operator">
             <summary>
             Der Vergleichsoperator, der für einen Wert- oder Spaltenvergleich verwendet werden soll
             </summary>
@@ -465,54 +575,6 @@
             Stellt eine logische Verknüpfung mehrerer Abfrageknoten dar
             </summary>
         </member>
-        <member name="T:RobinManzl.DataAccessLayer.Query.IsInCondition">
-            <inheritdoc />
-            <summary>
-            Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit angegebenen Werten dar
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.IsInCondition.ConditionType">
-            <inheritdoc />
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.IsInCondition.AttributeName">
-            <summary>
-            Die Angabe des Spaltennamens
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.IsInCondition.Values">
-            <summary>
-            Die Angabe der Werte, auf welche geprüft werden soll
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.IsInCondition.ShouldBeIn">
-            <summary>
-            Gibt an, ob der Sapltenwert in den angebenen Werten enthalten sein muss, oder ob er nicht enthalten sein darf
-            </summary>
-        </member>
-        <member name="T:RobinManzl.DataAccessLayer.Query.LogicalCondition">
-            <inheritdoc />
-            <summary>
-            Stellt eine logische Verkettung zweier Abfrageknoten dar
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.LogicalCondition.ConditionType">
-            <inheritdoc />
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.LogicalCondition.LeftCondition">
-            <summary>
-            Der linke Knoten der Verkettung
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.LogicalCondition.RightCondition">
-            <summary>
-            Der rechte Knoten der Verkettung
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.LogicalCondition.LogicalOperator">
-            <summary>
-            Der logische Operator, welcher für die Verkettung verwendet werden soll
-            </summary>
-        </member>
         <member name="T:RobinManzl.DataAccessLayer.Query.LogicalOperator">
             <summary>
             Gibt den logischen Operatoren an, der für eine Verkettung mehrerer Knoten verwendet werden soll
@@ -526,25 +588,6 @@
         <member name="F:RobinManzl.DataAccessLayer.Query.LogicalOperator.Or">
             <summary>
             Stellt den logischen Operatoren OR dar
-            </summary>
-        </member>
-        <member name="T:RobinManzl.DataAccessLayer.Query.NullCompareCondition">
-            <inheritdoc />
-            <summary>
-            Stellt eine Bedingung mit einem Wertvergleich einer Spalte auf NULL dar
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.NullCompareCondition.ConditionType">
-            <inheritdoc />
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.NullCompareCondition.AttributeName">
-            <summary>
-            Die Angabe des Spaltennamens
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.NullCompareCondition.ShouldBeNull">
-            <summary>
-            Gibt an, ob der Wert der Spalte auf NULL oder NOT NULL geprüft werden soll
             </summary>
         </member>
         <member name="T:RobinManzl.DataAccessLayer.Query.Operator">
@@ -592,6 +635,21 @@
             Verwendet den Not-Like-Operator
             </summary>
         </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.OrderByOption">
+            <summary>
+            Klasse, die verwendet werden kann, um die Sortierung der Zeilen bei Abfragen zu bestimmen
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.OrderByOption.Column">
+            <summary>
+            Kann zur Festlegung des Sortier-Attributes verwendet werden
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.OrderByOption.SortDirection">
+            <summary>
+            Wird verwendet, um die Sortier-Richtung zu spezifizieren
+            </summary>
+        </member>
         <member name="T:RobinManzl.DataAccessLayer.Query.QueryCondition">
             <summary>
             Stellt die Basis aller Abfragemöglichkeiten dar
@@ -612,77 +670,9 @@
             Die Angabe der maximal zurückzuliefernden Zeilen
             </summary>
         </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderByColumn1">
+        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderByOptions">
             <summary>
-            Gibt das erste Attribut für eine Sortierung an
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderByColumn2">
-            <summary>
-            Gibt das zweite Attribut für eine Sortierung an
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderByColumn3">
-            <summary>
-            Gibt das dritte Attribut für eine Sortierung an
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderDescending1">
-            <summary>
-            Gibt an, ob die Sortierung für das erste Attribut absteigend durchgeführt werden soll
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderDescending2">
-            <summary>
-            Gibt an, ob die Sortierung für das zweite Attribut absteigend durchgeführt werden soll
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderDescending3">
-            <summary>
-            Gibt an, ob die Sortierung für das dritte Attribut absteigend durchgeführt werden soll
-            </summary>
-        </member>
-        <member name="T:RobinManzl.DataAccessLayer.Query.SeriesCondition">
-            <inheritdoc />
-            <summary>
-            Stellt eine logische Verkettung mehrerer Abfrageknoten dar
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.SeriesCondition.ConditionType">
-            <inheritdoc />
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.SeriesCondition.Conditions">
-            <summary>
-            Der Knoten, welche für eine Verkettung verwendet werden sollen
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.SeriesCondition.LogicalOperator">
-            <summary>
-            Der logische Operator, welcher für die Verkettung verwendet werden soll
-            </summary>
-        </member>
-        <member name="T:RobinManzl.DataAccessLayer.Query.ValueCompareCondition">
-            <inheritdoc />
-            <summary>
-            Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit einem angegebenen Wert dar
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.ValueCompareCondition.ConditionType">
-            <inheritdoc />
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.ValueCompareCondition.AttributeName">
-            <summary>
-            Die Angabe des Spaltennamens
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.ValueCompareCondition.Value">
-            <summary>
-            Die Angabe des Wertes
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.ValueCompareCondition.Operator">
-            <summary>
-            Der Vergleichsoperator, der für einen Wert- oder Spaltenvergleich verwendet werden soll
+            Wird zur Angabe der Sortier-Optionen verwendet
             </summary>
         </member>
     </members>

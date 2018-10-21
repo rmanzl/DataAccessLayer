@@ -114,22 +114,9 @@ namespace RobinManzl.DataAccessLayer.Internal
                 stringBuilder.AppendLine();
             }
 
-            if (queryOptions?.OrderByColumn1 != null)
+            if (queryOptions?.OrderByOptions != null)
             {
-                stringBuilder.Append($"ORDER BY {queryOptions.OrderByColumn1}");
-                stringBuilder.AppendLine($" {(queryOptions.OrderDescending1 ? "DESC" : "ASC")}");
-
-                if (queryOptions.OrderByColumn2 != null)
-                {
-                    stringBuilder.Append($", {queryOptions.OrderByColumn2}");
-                    stringBuilder.AppendLine($" {(queryOptions.OrderDescending2 ? "DESC" : "ASC")}");
-
-                    if (queryOptions.OrderByColumn3 != null)
-                    {
-                        stringBuilder.Append($", {queryOptions.OrderByColumn3}");
-                        stringBuilder.AppendLine($" {(queryOptions.OrderDescending3 ? "DESC" : "ASC")}");
-                    }
-                }
+                stringBuilder.AppendLine(string.Join(", ", queryOptions.OrderByOptions.Select(o => $"ORDER BY {o.Column} {(o.SortDirection == SortDirection.Descending ? "DESC" : "ASC")}")));
             }
 
             return stringBuilder.ToString();

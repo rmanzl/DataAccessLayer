@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace RobinManzl.DataAccessLayer.Query
 {
 
@@ -14,34 +16,9 @@ namespace RobinManzl.DataAccessLayer.Query
         public int? MaxRowCount { get; set; }
 
         /// <summary>
-        /// Gibt das erste Attribut für eine Sortierung an
+        /// Wird zur Angabe der Sortier-Optionen verwendet
         /// </summary>
-        public string OrderByColumn1 { get; set; }
-
-        /// <summary>
-        /// Gibt das zweite Attribut für eine Sortierung an
-        /// </summary>
-        public string OrderByColumn2 { get; set; }
-
-        /// <summary>
-        /// Gibt das dritte Attribut für eine Sortierung an
-        /// </summary>
-        public string OrderByColumn3 { get; set; }
-
-        /// <summary>
-        /// Gibt an, ob die Sortierung für das erste Attribut absteigend durchgeführt werden soll
-        /// </summary>
-        public bool OrderDescending1 { get; set; }
-
-        /// <summary>
-        /// Gibt an, ob die Sortierung für das zweite Attribut absteigend durchgeführt werden soll
-        /// </summary>
-        public bool OrderDescending2 { get; set; }
-
-        /// <summary>
-        /// Gibt an, ob die Sortierung für das dritte Attribut absteigend durchgeführt werden soll
-        /// </summary>
-        public bool OrderDescending3 { get; set; }
+        public List<OrderByOption> OrderByOptions { get; } = new List<OrderByOption>();
 
     }
 

@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using RobinManzl.DataAccessLayer.Attributes;
 using RobinManzl.DataAccessLayer.Query;
+using RobinManzl.DataAccessLayer.Query.Conditions;
 
 namespace RobinManzl.DataAccessLayer.Internal
 {
