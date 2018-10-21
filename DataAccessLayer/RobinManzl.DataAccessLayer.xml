@@ -627,9 +627,19 @@
             Gibt das dritte Attribut für eine Sortierung an
             </summary>
         </member>
-        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderDescending">
+        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderDescending1">
             <summary>
-            Gibt an, ob die Sortierung absteigend durchgeführt werden soll
+            Gibt an, ob die Sortierung für das erste Attribut absteigend durchgeführt werden soll
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderDescending2">
+            <summary>
+            Gibt an, ob die Sortierung für das zweite Attribut absteigend durchgeführt werden soll
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderDescending3">
+            <summary>
+            Gibt an, ob die Sortierung für das dritte Attribut absteigend durchgeführt werden soll
             </summary>
         </member>
         <member name="T:RobinManzl.DataAccessLayer.Query.SeriesCondition">

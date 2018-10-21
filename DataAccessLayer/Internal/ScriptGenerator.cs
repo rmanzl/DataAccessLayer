@@ -117,18 +117,19 @@ namespace RobinManzl.DataAccessLayer.Internal
             if (queryOptions?.OrderByColumn1 != null)
             {
                 stringBuilder.Append($"ORDER BY {queryOptions.OrderByColumn1}");
+                stringBuilder.AppendLine($" {(queryOptions.OrderDescending1 ? "DESC" : "ASC")}");
 
                 if (queryOptions.OrderByColumn2 != null)
                 {
                     stringBuilder.Append($", {queryOptions.OrderByColumn2}");
+                    stringBuilder.AppendLine($" {(queryOptions.OrderDescending2 ? "DESC" : "ASC")}");
 
                     if (queryOptions.OrderByColumn3 != null)
                     {
                         stringBuilder.Append($", {queryOptions.OrderByColumn3}");
+                        stringBuilder.AppendLine($" {(queryOptions.OrderDescending3 ? "DESC" : "ASC")}");
                     }
                 }
-
-                stringBuilder.AppendLine($" {(queryOptions.OrderDescending ? "DESC" : "ASC")}");
             }
 
             return stringBuilder.ToString();
