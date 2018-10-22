@@ -338,7 +338,7 @@ namespace RobinManzl.DataAccessLayer
 
             var entities = GetEntities(new ValueCompareCondition
             {
-                AttributeName = nameof(IEntity.Id),
+                AttributeName = _primaryKeyProperty.Name,
                 Value = id,
                 Operator = Operator.Equals
             });
@@ -361,7 +361,7 @@ namespace RobinManzl.DataAccessLayer
 
             var entities = GetEntities(new ValueCompareCondition
             {
-                AttributeName = nameof(IEntity.Id),
+                AttributeName = _primaryKeyProperty.Name,
                 Value = id,
                 Operator = Operator.Equals
             });
@@ -729,7 +729,7 @@ namespace RobinManzl.DataAccessLayer
                         command.CommandType = CommandType.StoredProcedure;
                     }
 
-                    command.Parameters.AddWithValue(nameof(IEntity.Id), entityId);
+                    command.Parameters.AddWithValue(nameof(_primaryKeyProperty.Name), entityId);
 
                     _logger?.Info(GenerateLoggingMessage(command));
 

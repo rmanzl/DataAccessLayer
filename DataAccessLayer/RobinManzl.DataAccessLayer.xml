@@ -353,16 +353,6 @@
             Exception, welche auftritt, wenn eine Entitätsklasse ohne Primärschlüsselattribute angegeben wurde
             </summary>
         </member>
-        <member name="T:RobinManzl.DataAccessLayer.IEntity">
-            <summary>
-            Schnittstelle, welche die Basis jeder Entitätsklasse darstellt
-            </summary>
-        </member>
-        <member name="P:RobinManzl.DataAccessLayer.IEntity.Id">
-            <summary>
-            Der Primärschlüssel der Tabelle
-            </summary>
-        </member>
         <member name="T:RobinManzl.DataAccessLayer.ILogger">
             <summary>
             Schnittstelle, um einen Logging-Mechanismus dem <code>DbService</code> hinzuzufügen
