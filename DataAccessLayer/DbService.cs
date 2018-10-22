@@ -537,7 +537,7 @@ namespace RobinManzl.DataAccessLayer
 
                     _logger?.Info(GenerateLoggingMessage(command));
 
-                    var result = (int)command.ExecuteScalar();
+                    var result = command.ExecuteScalar();
                     _primaryKeyProperty.SetValue(entity, result);
 
                     return true;
