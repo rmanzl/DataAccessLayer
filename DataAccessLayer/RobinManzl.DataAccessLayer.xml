@@ -55,7 +55,12 @@
             Gibt den physikalischen Tabellennamen an
             </summary>
         </member>
-        <member name="M:RobinManzl.DataAccessLayer.Attributes.TableBaseAttribute.#ctor(System.String,System.String)">
+        <member name="F:RobinManzl.DataAccessLayer.Attributes.TableBaseAttribute.HasIdentityColumn">
+            <summary>
+            Gibt an, ob das Primärschlüssel-Attribut eine Idenitäts-Spalte ist
+            </summary>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.Attributes.TableBaseAttribute.#ctor(System.String,System.String,System.Boolean)">
             <inheritdoc />
             <summary>
             Standardkonstruktor, welcher alle Attribute setzt

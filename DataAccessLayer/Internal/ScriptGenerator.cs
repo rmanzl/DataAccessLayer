@@ -20,6 +20,8 @@ namespace RobinManzl.DataAccessLayer.Internal
 
         private readonly string _primaryKeyName;
 
+        private readonly bool _hasIdentityColumn;
+
         private string _selectQuery;
 
         private string _insertQuery;
@@ -28,7 +30,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 
         private string _deleteQuery;
 
-        public ScriptGenerator(List<PropertyInfo> properties, string primaryKeyName)
+        public ScriptGenerator(List<PropertyInfo> properties, string primaryKeyName, TableBaseAttribute attribute)
         {
             _properties = properties;
 
@@ -36,11 +38,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 
             _tableSpecificProperties = _properties.Where(prop => !prop.Name.Equals(_primaryKeyName)).ToList();
 
-            TableBaseAttribute attribute = typeof(T).GetCustomAttribute<TableAttribute>();
-            if (attribute == null)
-            {
-                attribute = typeof(T).GetCustomAttribute<ViewAttribute>();
-            }
+            _hasIdentityColumn = attribute?.HasIdentityColumn ?? true;
 
             if (attribute != null)
             {
@@ -141,7 +139,11 @@ namespace RobinManzl.DataAccessLayer.Internal
                 })));
                 stringBuilder.AppendLine("])");
 
-                stringBuilder.AppendLine($"OUTPUT INSERTED.[{_primaryKeyName}]");
+                if (_hasIdentityColumn)
+                {
+                    stringBuilder.AppendLine($"OUTPUT INSERTED.[{_primaryKeyName}]");
+                }
+
                 stringBuilder.AppendLine("VALUES");
 
                 stringBuilder.Append("(@");

@@ -33,6 +33,8 @@ namespace RobinManzl.DataAccessLayer
 
         private readonly bool _isView;
 
+        private readonly bool _hasIdentityColumn;
+
         private readonly string _procedureSchema;
 
         private readonly string _insertProcedure;
@@ -72,8 +74,15 @@ namespace RobinManzl.DataAccessLayer
             _logger = logger;
             _logger?.Info($"Creating DbService for entity {typeof(T).FullName}");
 
-            var viewAttribute = typeof(T).GetCustomAttribute<ViewAttribute>();
-            if (viewAttribute != null)
+            TableBaseAttribute attribute = typeof(T).GetCustomAttribute<TableAttribute>();
+            if (attribute == null)
+            {
+                attribute = typeof(T).GetCustomAttribute<ViewAttribute>();
+            }
+
+            _hasIdentityColumn = attribute?.HasIdentityColumn ?? true;
+
+            if (attribute is ViewAttribute viewAttribute)
             {
                 _isView = true;
                 _procedureSchema = viewAttribute.ProcedureSchema;
@@ -104,7 +113,7 @@ namespace RobinManzl.DataAccessLayer
 
             _logger?.Debug($"Primary key property of entity {typeof(T).Name}: {_primaryKeyProperty.Name}");
 
-            _scriptGenerator = new ScriptGenerator<T>(properties, primaryKeyName);
+            _scriptGenerator = new ScriptGenerator<T>(properties, primaryKeyName, attribute);
             _entityParser = new EntityParser<T>(properties);
         }
 
@@ -537,8 +546,15 @@ namespace RobinManzl.DataAccessLayer
 
                     _logger?.Info(GenerateLoggingMessage(command));
 
-                    var result = command.ExecuteScalar();
-                    _primaryKeyProperty.SetValue(entity, result);
+                    if (_hasIdentityColumn)
+                    {
+                        var result = command.ExecuteScalar();
+                        _primaryKeyProperty.SetValue(entity, result);
+                    }
+                    else
+                    {
+                        command.ExecuteScalar();
+                    }
 
                     return true;
                 }
