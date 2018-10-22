@@ -7,7 +7,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 {
     
     internal class EntityParser<T>
-        where T : IEntity, new()
+        where T : new()
     {
 
         private readonly List<PropertyInfo> _properties;
@@ -21,7 +21,7 @@ namespace RobinManzl.DataAccessLayer.Internal
         {
             var entity = new T();
 
-            for (int i = 0; i < _properties.Count; i++)
+            for (var i = 0; i < _properties.Count; i++)
             {
                 var value = reader.GetValue(i);
                 if (value == DBNull.Value)

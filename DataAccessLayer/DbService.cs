@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using NLog;
 using RobinManzl.DataAccessLayer.Attributes;
+using RobinManzl.DataAccessLayer.Exceptions;
 using RobinManzl.DataAccessLayer.Internal;
 using RobinManzl.DataAccessLayer.Query;
 using RobinManzl.DataAccessLayer.Query.Conditions;
@@ -21,7 +22,7 @@ namespace RobinManzl.DataAccessLayer
     /// Die Klasse gibt an, für welche Tabelle Daten ausgelesen werden sollen
     /// </typeparam>
     public class DbService<T>
-        where T : IEntity, new()
+        where T : new()
     {
 
         private readonly object _lock;
@@ -98,7 +99,7 @@ namespace RobinManzl.DataAccessLayer
 
             if (_primaryKeyProperty == null)
             {
-                _primaryKeyProperty = properties.First(prop => prop.Name == "Id");
+                throw new InvalidEntityClassException();
             }
 
             _logger?.Debug($"Primary key property of entity {typeof(T).Name}: {_primaryKeyProperty.Name}");

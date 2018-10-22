@@ -9,7 +9,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 {
 
     internal class ScriptGenerator<T>
-        where T : IEntity, new()
+        where T : new()
     {
 
         private readonly List<PropertyInfo> _properties;
@@ -44,7 +44,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 
             if (attribute != null)
             {
-                _tableName = "";
+                _tableName = string.Empty;
                 if (attribute.Schema != null)
                 {
                     _tableName += attribute.Schema + "].[";

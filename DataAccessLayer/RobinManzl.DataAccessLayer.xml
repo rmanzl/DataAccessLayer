@@ -347,6 +347,12 @@
             Gibt an, ob der Vorgang erfolgreich war
             </returns>
         </member>
+        <member name="T:RobinManzl.DataAccessLayer.Exceptions.InvalidEntityClassException">
+            <inheritdoc />
+            <summary>
+            Exception, welche auftritt, wenn eine Entitätsklasse ohne Primärschlüsselattribute angegeben wurde
+            </summary>
+        </member>
         <member name="T:RobinManzl.DataAccessLayer.IEntity">
             <summary>
             Schnittstelle, welche die Basis jeder Entitätsklasse darstellt

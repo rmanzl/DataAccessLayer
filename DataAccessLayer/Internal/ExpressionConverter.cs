@@ -12,7 +12,7 @@ namespace RobinManzl.DataAccessLayer.Internal
     {
         
         public static QueryCondition ToQueryCondition<T>(Expression<Func<T, bool>> expression, Type entityType)
-            where T : IEntity, new()
+            where T : new()
         {
             var root = (BinaryExpression)expression.Body;
             return ParseBinaryExpression(root, entityType);
