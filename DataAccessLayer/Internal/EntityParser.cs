@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Reflection;
+using RobinManzl.DataAccessLayer.Internal.Model;
 
 namespace RobinManzl.DataAccessLayer.Internal
 {
@@ -10,26 +10,26 @@ namespace RobinManzl.DataAccessLayer.Internal
         where T : new()
     {
 
-        private readonly List<PropertyInfo> _properties;
+        private readonly EntityModel _entityModel;
 
-        public EntityParser(List<PropertyInfo> properties)
+        public EntityParser(EntityModel entityModel)
         {
-            _properties = properties;
+            _entityModel = entityModel;
         }
         
         public T ParseEntity(SqlDataReader reader)
         {
             var entity = new T();
 
-            for (var i = 0; i < _properties.Count; i++)
+            for (var i = 0; i < _entityModel.Columns.Count; i++)
             {
                 var value = reader.GetValue(i);
                 if (value == DBNull.Value)
                 {
                     value = null;
                 }
-                
-                _properties[i].SetValue(entity, value);
+
+                _entityModel.Columns[i].Property.SetValue(entity, value);
             }
 
             return entity;
@@ -39,9 +39,9 @@ namespace RobinManzl.DataAccessLayer.Internal
         {
             var parameters = new Dictionary<string, object>();
 
-            foreach (var property in _properties)
+            foreach (var column in _entityModel.Columns)
             {
-                parameters[property.Name] = property.GetValue(entity) ?? DBNull.Value;
+                parameters[column.Property.Name] = column.Property.GetValue(entity) ?? DBNull.Value;
             }
 
             return parameters;

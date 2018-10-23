@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using RobinManzl.DataAccessLayer.Attributes;
+using RobinManzl.DataAccessLayer.Internal.Model;
 using RobinManzl.DataAccessLayer.Query;
 
 namespace RobinManzl.DataAccessLayer.Internal
@@ -12,15 +11,7 @@ namespace RobinManzl.DataAccessLayer.Internal
         where T : new()
     {
 
-        private readonly List<PropertyInfo> _properties;
-
-        private readonly List<PropertyInfo> _tableSpecificProperties;
-
-        private readonly string _tableName;
-
-        private readonly string _primaryKeyName;
-
-        private readonly bool _hasIdentityColumn;
+        private readonly EntityModel _entityModel;
 
         private string _selectQuery;
 
@@ -30,37 +21,9 @@ namespace RobinManzl.DataAccessLayer.Internal
 
         private string _deleteQuery;
 
-        public ScriptGenerator(List<PropertyInfo> properties, string primaryKeyName, TableBaseAttribute attribute)
+        public ScriptGenerator(EntityModel entityModel)
         {
-            _properties = properties;
-
-            _primaryKeyName = primaryKeyName;
-
-            _tableSpecificProperties = _properties.Where(prop => !prop.Name.Equals(_primaryKeyName)).ToList();
-
-            _hasIdentityColumn = attribute?.HasIdentityColumn ?? true;
-
-            if (attribute != null)
-            {
-                _tableName = string.Empty;
-                if (attribute.Schema != null)
-                {
-                    _tableName += attribute.Schema + "].[";
-                }
-
-                if (attribute.Name != null)
-                {
-                    _tableName += attribute.Name;
-                }
-                else
-                {
-                    _tableName += typeof(T).Name;
-                }
-            }
-            else
-            {
-                _tableName = typeof(T).Name;
-            }
+            _entityModel = entityModel;
         }
 
         public string GetSelectQuery()
@@ -70,18 +33,14 @@ namespace RobinManzl.DataAccessLayer.Internal
                 var stringBuilder = new StringBuilder();
 
                 stringBuilder.Append("SELECT{0} [");
-                stringBuilder.Append(_tableName);
+                stringBuilder.Append(_entityModel.TableName);
                 stringBuilder.Append("].[");
 
-                stringBuilder.Append(string.Join($"], [{_tableName}].[", _properties.Select(prop =>
-                {
-                    var attribute = prop.GetCustomAttribute<ColumnAttribute>();
-                    return attribute.Name ?? prop.Name;
-                })));
+                stringBuilder.Append(string.Join($"], [{_entityModel.TableName}].[", _entityModel.Columns.Select(c => c.ColumnName)));
                 stringBuilder.AppendLine("]");
 
                 stringBuilder.Append("FROM [");
-                stringBuilder.Append(_tableName);
+                stringBuilder.Append(_entityModel.TableName);
                 stringBuilder.AppendLine("]");
 
                 _selectQuery = stringBuilder.ToString();
@@ -128,26 +87,32 @@ namespace RobinManzl.DataAccessLayer.Internal
                 var stringBuilder = new StringBuilder();
 
                 stringBuilder.Append("INSERT INTO [");
-                stringBuilder.Append(_tableName);
+                stringBuilder.Append(_entityModel.TableName);
                 stringBuilder.AppendLine("]");
 
                 stringBuilder.Append("([");
-                stringBuilder.Append(string.Join("], [", _tableSpecificProperties.Select(prop =>
+                if (!_entityModel.HasIdentityColumn)
                 {
-                    var attribute = prop.GetCustomAttribute<ColumnAttribute>();
-                    return attribute.Name ?? prop.Name;
-                })));
+                    stringBuilder.Append($"{_entityModel.PrimaryKeyName}], [");
+                }
+
+                stringBuilder.Append(string.Join("], [", _entityModel.Columns.Select(c => c.ColumnName)));
                 stringBuilder.AppendLine("])");
 
-                if (_hasIdentityColumn)
+                if (_entityModel.HasIdentityColumn)
                 {
-                    stringBuilder.AppendLine($"OUTPUT INSERTED.[{_primaryKeyName}]");
+                    stringBuilder.AppendLine($"OUTPUT INSERTED.[{_entityModel.PrimaryKeyName}]");
                 }
 
                 stringBuilder.AppendLine("VALUES");
 
                 stringBuilder.Append("(@");
-                stringBuilder.Append(string.Join(", @", _tableSpecificProperties.Select(prop => prop.Name)));
+                if (!_entityModel.HasIdentityColumn)
+                {
+                    stringBuilder.Append($"{_entityModel.PrimaryKeyProperty.Name}, @");
+                }
+
+                stringBuilder.Append(string.Join(", @", _entityModel.Columns.Select(c => c.Property.Name)));
                 stringBuilder.Append(")");
 
                 _insertQuery = stringBuilder.ToString();
@@ -163,18 +128,13 @@ namespace RobinManzl.DataAccessLayer.Internal
                 var stringBuilder = new StringBuilder();
 
                 stringBuilder.Append("UPDATE [");
-                stringBuilder.Append(_tableName);
+                stringBuilder.Append(_entityModel.TableName);
                 stringBuilder.AppendLine("]");
 
                 stringBuilder.Append("SET [");
-                stringBuilder.AppendLine(string.Join(", [", _tableSpecificProperties.Select(prop =>
-                {
-                    var attribute = prop.GetCustomAttribute<ColumnAttribute>();
-                    var name = attribute.Name ?? prop.Name;
-                    return name + "] = @" + name;
-                })));
+                stringBuilder.AppendLine(string.Join(", [", _entityModel.Columns.Select(c => $"{c.ColumnName}] = @{c.Property.Name}")));
 
-                stringBuilder.Append($"WHERE [{_primaryKeyName}] = @{_primaryKeyName}");
+                stringBuilder.Append($"WHERE [{_entityModel.PrimaryKeyName}] = @{_entityModel.PrimaryKeyProperty.Name}");
 
                 _updateQuery = stringBuilder.ToString();
             }
@@ -189,10 +149,10 @@ namespace RobinManzl.DataAccessLayer.Internal
                 var stringBuilder = new StringBuilder();
 
                 stringBuilder.Append("DELETE FROM [");
-                stringBuilder.Append(_tableName);
+                stringBuilder.Append(_entityModel.TableName);
                 stringBuilder.AppendLine("]");
 
-                stringBuilder.Append($"WHERE[{ _primaryKeyName}] = @{ _primaryKeyName}");
+                stringBuilder.Append($"WHERE[{_entityModel.PrimaryKeyName}] = @{_entityModel.PrimaryKeyProperty.Name}");
 
                 _deleteQuery = stringBuilder.ToString();
             }
@@ -205,7 +165,7 @@ namespace RobinManzl.DataAccessLayer.Internal
             var stringBuilder = new StringBuilder();
 
             stringBuilder.Append("DELETE FROM [");
-            stringBuilder.Append(_tableName);
+            stringBuilder.Append(_entityModel.TableName);
             stringBuilder.AppendLine("]");
 
             stringBuilder.Append("WHERE ");

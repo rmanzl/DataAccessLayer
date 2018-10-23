@@ -24,7 +24,7 @@ namespace RobinManzl.DataAccessLayer.Attributes
         /// Gibt an, ob das Primärschlüssel-Attribut eine Idenitäts-Spalte ist
         /// </summary>
         public bool HasIdentityColumn;
-        
+
         /// <inheritdoc />
         /// <summary>
         /// Standardkonstruktor, welcher alle Attribute setzt
@@ -34,6 +34,9 @@ namespace RobinManzl.DataAccessLayer.Attributes
         /// </param>
         /// <param name="schema">
         /// Schema der Tabelle
+        /// </param>
+        /// <param name="hasIdentityColumn">
+        /// Gibt an, ob es sich bei dem Primärschlüssel um eine Identitässpalte handelt
         /// </param>
         protected TableBaseAttribute(string name = null, string schema = null, bool hasIdentityColumn = true)
         {

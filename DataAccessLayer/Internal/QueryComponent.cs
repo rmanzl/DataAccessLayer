@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
+using RobinManzl.DataAccessLayer.Internal.Model;
 using RobinManzl.DataAccessLayer.Query;
 using RobinManzl.DataAccessLayer.Query.Conditions;
 
@@ -16,9 +17,12 @@ namespace RobinManzl.DataAccessLayer.Internal
 
         private readonly DbService<T> _dbService;
 
-        public QueryComponent(DbService<T> dbService)
+        private readonly EntityModel _entityModel;
+
+        public QueryComponent(DbService<T> dbService, EntityModel entityModel)
         {
             _dbService = dbService;
+            _entityModel = entityModel;
         }
 
         public List<T> GetEntities(QueryCondition queryCondition = null, QueryOptions options = null)
@@ -119,7 +123,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 
             var entities = GetEntities(new ValueCompareCondition
             {
-                AttributeName = _dbService.PrimaryKeyProperty.Name,
+                AttributeName = _entityModel.PrimaryKeyName,
                 Value = id,
                 Operator = Operator.Equals
             });
@@ -133,7 +137,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 
             var entities = GetEntities(new ValueCompareCondition
             {
-                AttributeName = _dbService.PrimaryKeyProperty.Name,
+                AttributeName = _entityModel.PrimaryKeyName,
                 Value = id,
                 Operator = Operator.Equals
             });

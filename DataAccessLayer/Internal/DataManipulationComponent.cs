@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq.Expressions;
-using System.Text;
+using RobinManzl.DataAccessLayer.Internal.Model;
 using RobinManzl.DataAccessLayer.Query;
 // ReSharper disable InconsistentlySynchronizedField
 
@@ -16,9 +16,12 @@ namespace RobinManzl.DataAccessLayer.Internal
 
         private readonly DbService<T> _dbService;
 
-        public DataManipulationComponent(DbService<T> dbService)
+        private readonly EntityModel _entityModel;
+
+        public DataManipulationComponent(DbService<T> dbService, EntityModel entityModel)
         {
             _dbService = dbService;
+            _entityModel = entityModel;
         }
 
         private void AssignParameters(T entity, SqlCommand command)
@@ -46,8 +49,8 @@ namespace RobinManzl.DataAccessLayer.Internal
         {
             _dbService.Logger?.Debug(nameof(InsertEntity));
 
-            if (_dbService.IsView &&
-                _dbService.InsertProcedure == null)
+            if (_entityModel.IsView &&
+                _entityModel.InsertProcedure == null)
             {
                 _dbService.Logger?.Warning("Trying to insert row into view without specifying a stored procedure");
                 _dbService.LastErrorMessage = "Cannot insert entity into a view";
@@ -66,9 +69,9 @@ namespace RobinManzl.DataAccessLayer.Internal
                     }
 
                     string commandText;
-                    if (_dbService.IsView)
+                    if (_entityModel.IsView)
                     {
-                        commandText = $"[{(_dbService.ProcedureSchema != null ? _dbService.ProcedureSchema + "].[" : "")}{_dbService.InsertProcedure}]";
+                        commandText = $"[{(_entityModel.ProcedureSchema != null ? _entityModel.ProcedureSchema + "].[" : "")}{_entityModel.InsertProcedure}]";
                     }
                     else
                     {
@@ -81,7 +84,7 @@ namespace RobinManzl.DataAccessLayer.Internal
                         command.Transaction = _dbService.CurrentTransaction;
                     }
 
-                    if (_dbService.IsView)
+                    if (_entityModel.IsView)
                     {
                         command.CommandType = CommandType.StoredProcedure;
                     }
@@ -90,10 +93,10 @@ namespace RobinManzl.DataAccessLayer.Internal
 
                     _dbService.Logger?.Info(_dbService.GenerateLoggingMessage(command));
 
-                    if (_dbService.HasIdentityColumn)
+                    if (_entityModel.HasIdentityColumn)
                     {
                         var result = command.ExecuteScalar();
-                        _dbService.PrimaryKeyProperty.SetValue(entity, result);
+                        _entityModel.PrimaryKeyProperty.SetValue(entity, result);
                     }
                     else
                     {
@@ -132,8 +135,8 @@ namespace RobinManzl.DataAccessLayer.Internal
         {
             _dbService.Logger?.Debug(nameof(UpdateEntity));
 
-            if (_dbService.IsView &&
-                _dbService.UpdateProcedure == null)
+            if (_entityModel.IsView &&
+                _entityModel.UpdateProcedure == null)
             {
                 _dbService.Logger?.Warning("Trying to update row of view without specifying a stored procedure");
                 _dbService.LastErrorMessage = "Cannot update entity of a view";
@@ -152,9 +155,9 @@ namespace RobinManzl.DataAccessLayer.Internal
                     }
 
                     string commandText;
-                    if (_dbService.IsView)
+                    if (_entityModel.IsView)
                     {
-                        commandText = $"[{(_dbService.ProcedureSchema != null ? _dbService.ProcedureSchema + "].[" : "")}{_dbService.UpdateProcedure}]";
+                        commandText = $"[{(_entityModel.ProcedureSchema != null ? _entityModel.ProcedureSchema + "].[" : "")}{_entityModel.UpdateProcedure}]";
                     }
                     else
                     {
@@ -167,7 +170,7 @@ namespace RobinManzl.DataAccessLayer.Internal
                         command.Transaction = _dbService.CurrentTransaction;
                     }
 
-                    if (_dbService.IsView)
+                    if (_entityModel.IsView)
                     {
                         command.CommandType = CommandType.StoredProcedure;
                     }
@@ -210,8 +213,8 @@ namespace RobinManzl.DataAccessLayer.Internal
         {
             _dbService.Logger?.Debug(nameof(DeleteEntity));
 
-            if (_dbService.IsView &&
-                _dbService.DeleteProcedure == null)
+            if (_entityModel.IsView &&
+                _entityModel.DeleteProcedure == null)
             {
                 _dbService.Logger?.Warning("Trying to delete row of view without specifying a stored procedure");
                 _dbService.LastErrorMessage = "Cannot delete entity of a view";
@@ -230,9 +233,9 @@ namespace RobinManzl.DataAccessLayer.Internal
                     }
 
                     string commandText;
-                    if (_dbService.IsView)
+                    if (_entityModel.IsView)
                     {
-                        commandText = $"[{(_dbService.ProcedureSchema != null ? _dbService.ProcedureSchema + "].[" : "")}{_dbService.DeleteProcedure}]";
+                        commandText = $"[{(_entityModel.ProcedureSchema != null ? _entityModel.ProcedureSchema + "].[" : "")}{_entityModel.DeleteProcedure}]";
                     }
                     else
                     {
@@ -245,12 +248,12 @@ namespace RobinManzl.DataAccessLayer.Internal
                         command.Transaction = _dbService.CurrentTransaction;
                     }
 
-                    if (_dbService.IsView)
+                    if (_entityModel.IsView)
                     {
                         command.CommandType = CommandType.StoredProcedure;
                     }
 
-                    command.Parameters.AddWithValue(nameof(_dbService.PrimaryKeyProperty.Name), entityId);
+                    command.Parameters.AddWithValue(nameof(_entityModel.PrimaryKeyProperty.Name), entityId);
 
                     _dbService.Logger?.Info(_dbService.GenerateLoggingMessage(command));
 
@@ -288,7 +291,7 @@ namespace RobinManzl.DataAccessLayer.Internal
         {
             _dbService.Logger?.Debug(nameof(DeleteEntities));
 
-            if (_dbService.IsView)
+            if (_entityModel.IsView)
             {
                 _dbService.Logger?.Warning("Deleting rows of view with a query condition is not supported");
                 _dbService.LastErrorMessage = "Cannot delete entities of a view";

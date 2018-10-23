@@ -9,8 +9,6 @@ namespace RobinManzl.DataAccessLayer.Internal.Model
 
         public string TableName { get; set; }
 
-        public string PrimaryKeyName { get; set; }
-
         public bool IsView { get; set; }
 
         public bool HasIdentityColumn { get; set; }
@@ -23,11 +21,11 @@ namespace RobinManzl.DataAccessLayer.Internal.Model
 
         public string DeleteProcedure { get; set; }
 
+        public string PrimaryKeyName { get; set; }
+
         public PropertyInfo PrimaryKeyProperty { get; set; }
 
-        public List<PropertyInfo> AllProperties { get; set; }
-
-        public List<PropertyInfo> NonKeyProperties { get; set; }
+        public List<ColumnModel> Columns { get; set; }
 
     }
 

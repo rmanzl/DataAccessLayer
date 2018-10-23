@@ -12,8 +12,8 @@ namespace RobinManzl.DataAccessLayer.Attributes
     {
 
         /// <inheritdoc />
-        public TableAttribute(string name = null, string schema = null)
-            : base(name, schema)
+        public TableAttribute(string name = null, string schema = null, bool hasIdentityColumn = true)
+            : base(name, schema, hasIdentityColumn)
         {
         }
 

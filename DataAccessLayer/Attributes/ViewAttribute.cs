@@ -33,8 +33,8 @@ namespace RobinManzl.DataAccessLayer.Attributes
         public string DeleteProcedure;
 
         /// <inheritdoc />
-        public ViewAttribute(string name = null, string schema = null)
-            : base(name, schema)
+        public ViewAttribute(string name = null, string schema = null, bool hasIdentityColumn = true)
+            : base(name, schema, hasIdentityColumn)
         {
         }
 

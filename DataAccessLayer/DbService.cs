@@ -7,7 +7,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using NLog;
 using RobinManzl.DataAccessLayer.Attributes;
-using RobinManzl.DataAccessLayer.Exceptions;
 using RobinManzl.DataAccessLayer.Internal;
 using RobinManzl.DataAccessLayer.Internal.Model;
 using RobinManzl.DataAccessLayer.Query;
@@ -31,23 +30,11 @@ namespace RobinManzl.DataAccessLayer
 
         internal readonly ILogger Logger;
 
-        internal readonly bool IsView;
-
-        internal readonly bool HasIdentityColumn;
-
-        internal readonly string ProcedureSchema;
-
-        internal readonly string InsertProcedure;
-
-        internal readonly string UpdateProcedure;
-
-        internal readonly string DeleteProcedure;
-
         internal SqlTransaction CurrentTransaction;
 
-        internal readonly PropertyInfo PrimaryKeyProperty;
-
         internal EntityModel EntityModel;
+
+        internal readonly ModelBuilder<T> ModelBuilder;
 
         internal readonly QueryComponent<T> QueryComponent;
 
@@ -80,49 +67,13 @@ namespace RobinManzl.DataAccessLayer
             Logger = logger;
             Logger?.Info($"Creating DbService for entity {typeof(T).FullName}");
 
-            TableBaseAttribute attribute = typeof(T).GetCustomAttribute<TableAttribute>();
-            if (attribute == null)
-            {
-                attribute = typeof(T).GetCustomAttribute<ViewAttribute>();
-            }
+            ModelBuilder = new ModelBuilder<T>();
+            EntityModel = ModelBuilder.BuildEntityModel();
 
-            HasIdentityColumn = attribute?.HasIdentityColumn ?? true;
-
-            if (attribute is ViewAttribute viewAttribute)
-            {
-                IsView = true;
-                ProcedureSchema = viewAttribute.ProcedureSchema;
-                InsertProcedure = viewAttribute.InsertProcedure;
-                UpdateProcedure = viewAttribute.UpdateProcedure;
-                DeleteProcedure = viewAttribute.DeleteProcedure;
-            }
-
-            var properties = GetProperties();
-
-            var primaryKeyName = "Id";
-            foreach (var property in properties)
-            {
-                Logger?.Debug($"Entity {typeof(T).Name} contains property '{property.Name}' mapping db field [{property.GetCustomAttribute<ColumnAttribute>().Name ?? property.Name}]");
-
-                var primaryKeyAttribute = property.GetCustomAttribute<PrimaryKeyAttribute>();
-                if (primaryKeyAttribute != null)
-                {
-                    PrimaryKeyProperty = property;
-                    primaryKeyName = property.Name;
-                }
-            }
-
-            if (PrimaryKeyProperty == null)
-            {
-                throw new InvalidEntityClassException();
-            }
-
-            Logger?.Debug($"Primary key property of entity {typeof(T).Name}: {PrimaryKeyProperty.Name}");
-
-            QueryComponent = new QueryComponent<T>(this);
-            DataManipulationComponent = new DataManipulationComponent<T>(this);
-            ScriptGenerator = new ScriptGenerator<T>(properties, primaryKeyName, attribute);
-            EntityParser = new EntityParser<T>(properties);
+            QueryComponent = new QueryComponent<T>(this, EntityModel);
+            DataManipulationComponent = new DataManipulationComponent<T>(this, EntityModel);
+            ScriptGenerator = new ScriptGenerator<T>(EntityModel);
+            EntityParser = new EntityParser<T>(EntityModel);
         }
 
         /// <summary>

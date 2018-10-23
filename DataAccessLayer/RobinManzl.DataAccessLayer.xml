@@ -36,7 +36,7 @@
             Dieses Attribute kann verwendet werden, um einen vom Klassennamen abweichenden Tabellennamen zu definieren
             </summary>
         </member>
-        <member name="M:RobinManzl.DataAccessLayer.Attributes.TableAttribute.#ctor(System.String,System.String)">
+        <member name="M:RobinManzl.DataAccessLayer.Attributes.TableAttribute.#ctor(System.String,System.String,System.Boolean)">
             <inheritdoc />
         </member>
         <member name="T:RobinManzl.DataAccessLayer.Attributes.TableBaseAttribute">
@@ -71,6 +71,9 @@
             <param name="schema">
             Schema der Tabelle
             </param>
+            <param name="hasIdentityColumn">
+            Gibt an, ob es sich bei dem Primärschlüssel um eine Identitässpalte handelt
+            </param>
         </member>
         <member name="T:RobinManzl.DataAccessLayer.Attributes.ViewAttribute">
             <inheritdoc />
@@ -99,7 +102,7 @@
             Gibt den Namen der Stored Procedure an, welche für das Löschen einer Zeile in der View verwendet werden soll
             </summary>
         </member>
-        <member name="M:RobinManzl.DataAccessLayer.Attributes.ViewAttribute.#ctor(System.String,System.String)">
+        <member name="M:RobinManzl.DataAccessLayer.Attributes.ViewAttribute.#ctor(System.String,System.String,System.Boolean)">
             <inheritdoc />
         </member>
         <member name="T:RobinManzl.DataAccessLayer.DbService`1">
