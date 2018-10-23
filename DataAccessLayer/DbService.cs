@@ -10,7 +10,6 @@ using RobinManzl.DataAccessLayer.Attributes;
 using RobinManzl.DataAccessLayer.Exceptions;
 using RobinManzl.DataAccessLayer.Internal;
 using RobinManzl.DataAccessLayer.Query;
-using RobinManzl.DataAccessLayer.Query.Conditions;
 
 namespace RobinManzl.DataAccessLayer
 {
@@ -25,36 +24,40 @@ namespace RobinManzl.DataAccessLayer
         where T : new()
     {
 
-        private readonly object _lock;
+        internal readonly object Lock;
 
-        private readonly SqlConnection _connection;
+        internal readonly SqlConnection Connection;
 
-        private readonly ILogger _logger;
+        internal readonly ILogger Logger;
 
-        private readonly bool _isView;
+        internal readonly bool IsView;
 
-        private readonly bool _hasIdentityColumn;
+        internal readonly bool HasIdentityColumn;
 
-        private readonly string _procedureSchema;
+        internal readonly string ProcedureSchema;
 
-        private readonly string _insertProcedure;
+        internal readonly string InsertProcedure;
 
-        private readonly string _updateProcedure;
+        internal readonly string UpdateProcedure;
 
-        private readonly string _deleteProcedure;
+        internal readonly string DeleteProcedure;
 
-        private readonly PropertyInfo _primaryKeyProperty;
+        internal SqlTransaction CurrentTransaction;
 
-        private readonly ScriptGenerator<T> _scriptGenerator;
+        internal readonly PropertyInfo PrimaryKeyProperty;
 
-        private readonly EntityParser<T> _entityParser;
+        internal readonly QueryComponent<T> QueryComponent;
 
-        private SqlTransaction _currentTransaction;
+        internal readonly DataManipulationComponent<T> DataManipulationComponent;
+
+        internal readonly ScriptGenerator<T> ScriptGenerator;
+
+        internal readonly EntityParser<T> EntityParser;
 
         /// <summary>
         /// Beinhaltet die zuletzt generierte Fehlermeldung, sofern eine existiert
         /// </summary>
-        public string LastErrorMessage { get; private set; }
+        public string LastErrorMessage { get; internal set; }
 
         /// <summary>
         /// Erstellt eine neue Instanz eines DbServices für eine bestimmte Entity-Klasse
@@ -67,12 +70,12 @@ namespace RobinManzl.DataAccessLayer
         /// </param>
         public DbService(SqlConnection connection, ILogger logger = null)
         {
-            _lock = new object();
+            Lock = new object();
 
-            _connection = connection;
+            Connection = connection;
 
-            _logger = logger;
-            _logger?.Info($"Creating DbService for entity {typeof(T).FullName}");
+            Logger = logger;
+            Logger?.Info($"Creating DbService for entity {typeof(T).FullName}");
 
             TableBaseAttribute attribute = typeof(T).GetCustomAttribute<TableAttribute>();
             if (attribute == null)
@@ -80,15 +83,15 @@ namespace RobinManzl.DataAccessLayer
                 attribute = typeof(T).GetCustomAttribute<ViewAttribute>();
             }
 
-            _hasIdentityColumn = attribute?.HasIdentityColumn ?? true;
+            HasIdentityColumn = attribute?.HasIdentityColumn ?? true;
 
             if (attribute is ViewAttribute viewAttribute)
             {
-                _isView = true;
-                _procedureSchema = viewAttribute.ProcedureSchema;
-                _insertProcedure = viewAttribute.InsertProcedure;
-                _updateProcedure = viewAttribute.UpdateProcedure;
-                _deleteProcedure = viewAttribute.DeleteProcedure;
+                IsView = true;
+                ProcedureSchema = viewAttribute.ProcedureSchema;
+                InsertProcedure = viewAttribute.InsertProcedure;
+                UpdateProcedure = viewAttribute.UpdateProcedure;
+                DeleteProcedure = viewAttribute.DeleteProcedure;
             }
 
             var properties = GetProperties();
@@ -96,25 +99,27 @@ namespace RobinManzl.DataAccessLayer
             var primaryKeyName = "Id";
             foreach (var property in properties)
             {
-                _logger?.Debug($"Entity {typeof(T).Name} contains property '{property.Name}' mapping db field [{property.GetCustomAttribute<ColumnAttribute>().Name ?? property.Name}]");
+                Logger?.Debug($"Entity {typeof(T).Name} contains property '{property.Name}' mapping db field [{property.GetCustomAttribute<ColumnAttribute>().Name ?? property.Name}]");
 
                 var primaryKeyAttribute = property.GetCustomAttribute<PrimaryKeyAttribute>();
                 if (primaryKeyAttribute != null)
                 {
-                    _primaryKeyProperty = property;
+                    PrimaryKeyProperty = property;
                     primaryKeyName = property.Name;
                 }
             }
 
-            if (_primaryKeyProperty == null)
+            if (PrimaryKeyProperty == null)
             {
                 throw new InvalidEntityClassException();
             }
 
-            _logger?.Debug($"Primary key property of entity {typeof(T).Name}: {_primaryKeyProperty.Name}");
+            Logger?.Debug($"Primary key property of entity {typeof(T).Name}: {PrimaryKeyProperty.Name}");
 
-            _scriptGenerator = new ScriptGenerator<T>(properties, primaryKeyName, attribute);
-            _entityParser = new EntityParser<T>(properties);
+            QueryComponent = new QueryComponent<T>(this);
+            DataManipulationComponent = new DataManipulationComponent<T>(this);
+            ScriptGenerator = new ScriptGenerator<T>(properties, primaryKeyName, attribute);
+            EntityParser = new EntityParser<T>(properties);
         }
 
         /// <summary>
@@ -145,12 +150,29 @@ namespace RobinManzl.DataAccessLayer
         {
         }
 
-        private static List<PropertyInfo> GetProperties()
+        private List<PropertyInfo> GetProperties()
         {
             var properties = typeof(T).GetRuntimeProperties();
 
             return properties.Where(prop => prop.GetCustomAttribute<ColumnAttribute>() != null)
                              .ToList();
+        }
+
+        internal string GenerateLoggingMessage(SqlCommand command)
+        {
+            var message = "Execute statement: {";
+
+            message += command.CommandText;
+            message += "}";
+
+            if (command.Parameters.Count > 0)
+            {
+                message += " - {@";
+                message += string.Join(", @", command.Parameters.Cast<SqlParameter>().Select(par => par.ParameterName + " = '" + par.Value + "'"));
+                message += "}";
+            }
+
+            return message;
         }
 
         /// <summary>
@@ -164,21 +186,21 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public SqlTransaction BeginTransaction(SqlTransaction transaction = null)
         {
-            _logger?.Debug(nameof(BeginTransaction));
+            Logger?.Debug(nameof(BeginTransaction));
 
-            lock (_lock)
+            lock (Lock)
             {
-                _logger?.Info("Beginning transaction");
+                Logger?.Info("Beginning transaction");
 
-                if (_connection.State != ConnectionState.Open)
+                if (Connection.State != ConnectionState.Open)
                 {
-                    _logger?.Info("Opening connection");
-                    _connection.Open();
+                    Logger?.Info("Opening connection");
+                    Connection.Open();
                 }
 
-                _currentTransaction = transaction ?? _connection.BeginTransaction();
+                CurrentTransaction = transaction ?? Connection.BeginTransaction();
 
-                return _currentTransaction;
+                return CurrentTransaction;
             }
         }
 
@@ -187,18 +209,18 @@ namespace RobinManzl.DataAccessLayer
         /// </summary>
         public void RemoveTransaction()
         {
-            _logger?.Debug(nameof(RemoveTransaction));
+            Logger?.Debug(nameof(RemoveTransaction));
 
-            lock (_lock)
+            lock (Lock)
             {
-                _logger?.Info("Removing transaction");
+                Logger?.Info("Removing transaction");
 
-                _currentTransaction = null;
+                CurrentTransaction = null;
 
-                if (_connection.State == ConnectionState.Open)
+                if (Connection.State == ConnectionState.Open)
                 {
-                    _logger?.Info("Closing connection");
-                    _connection.Close();
+                    Logger?.Info("Closing connection");
+                    Connection.Close();
                 }
             }
         }
@@ -217,84 +239,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetEntities(QueryCondition queryCondition = null, QueryOptions options = null)
         {
-            _logger?.Debug(nameof(GetEntities));
-
-            lock (_lock)
-            {
-                var opened = _connection.State != ConnectionState.Open;
-
-                if (opened)
-                {
-                    _logger?.Info("Opening connection");
-                    _connection.Open();
-                }
-
-                try
-                {
-                    string query;
-                    var parameters = new Dictionary<string, object>();
-
-                    if (queryCondition != null)
-                    {
-                        query = _scriptGenerator.GetSelectQuery(parameters, queryCondition, options);
-                    }
-                    else
-                    {
-                        query = _scriptGenerator.GetSelectQuery(null, null, options);
-                    }
-
-                    var command = new SqlCommand(query, _connection);
-                    if (_currentTransaction != null)
-                    {
-                        command.Transaction = _currentTransaction;
-                    }
-
-                    foreach (var parameter in parameters)
-                    {
-                        command.Parameters.AddWithValue(parameter.Key, parameter.Value);
-                    }
-
-                    _logger?.Info(GenerateLoggingMessage(command));
-
-                    var reader = command.ExecuteReader();
-
-                    var entities = new List<T>();
-                    while (reader.Read())
-                    {
-                        entities.Add(_entityParser.ParseEntity(reader));
-                    }
-
-                    reader.Close();
-                    reader.Dispose();
-
-                    _logger?.Info($"Returned {entities.Count} rows from database");
-
-                    return entities;
-                }
-                catch (Exception exception)
-                {
-                    _logger?.Error("Error while executing query", exception);
-                    LastErrorMessage = exception.Message;
-
-                    if (_currentTransaction != null)
-                    {
-                        _logger?.Info("Rollback transaction and closing connection");
-                        _currentTransaction.Rollback();
-                        _currentTransaction = null;
-                        _connection.Close();
-                    }
-
-                    throw;
-                }
-                finally
-                {
-                    if (opened)
-                    {
-                        _logger?.Info("Closing connection");
-                        _connection.Close();
-                    }
-                }
-            }
+            return QueryComponent.GetEntities(queryCondition, options);
         }
 
         /// <summary>
@@ -311,9 +256,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetEntities(Expression<Func<T, bool>> expression, QueryOptions options = null)
         {
-            _logger?.Debug(nameof(GetEntities));
-
-            return GetEntities(ExpressionConverter.ToQueryCondition(expression, typeof(T)), options);
+            return QueryComponent.GetEntities(expression, options);
         }
 
         /// <summary>
@@ -327,9 +270,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetEntities(QueryOptions options)
         {
-            _logger?.Debug(nameof(GetEntities));
-
-            return GetEntities((QueryCondition)null, options);
+            return QueryComponent.GetEntities(options);
         }
 
         /// <summary>
@@ -343,16 +284,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetEntityById(int id)
         {
-            _logger?.Debug(nameof(GetEntityById));
-
-            var entities = GetEntities(new ValueCompareCondition
-            {
-                AttributeName = _primaryKeyProperty.Name,
-                Value = id,
-                Operator = Operator.Equals
-            });
-
-            return entities.Single();
+            return QueryComponent.GetEntityById(id);
         }
 
         /// <summary>
@@ -366,16 +298,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T TryGetEntityById(int id)
         {
-            _logger?.Debug(nameof(GetEntityById));
-
-            var entities = GetEntities(new ValueCompareCondition
-            {
-                AttributeName = _primaryKeyProperty.Name,
-                Value = id,
-                Operator = Operator.Equals
-            });
-
-            return entities.SingleOrDefault();
+            return QueryComponent.TryGetEntityById(id);
         }
 
         /// <summary>
@@ -392,12 +315,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetTopNEntities(int count, QueryCondition queryCondition = null)
         {
-            _logger?.Debug(nameof(GetTopNEntities));
-
-            return GetEntities(queryCondition, new QueryOptions()
-            {
-                MaxRowCount = count
-            });
+            return QueryComponent.GetTopNEntities(count, queryCondition);
         }
 
         /// <summary>
@@ -414,9 +332,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public List<T> GetTopNEntities(int count, Expression<Func<T, bool>> expression)
         {
-            _logger?.Debug(nameof(GetTopNEntities));
-
-            return GetTopNEntities(count, ExpressionConverter.ToQueryCondition(expression, typeof(T)));
+            return QueryComponent.GetTopNEntities(count, expression);
         }
 
         /// <summary>
@@ -430,12 +346,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetFirstEntity(QueryCondition queryCondition = null)
         {
-            _logger?.Debug(nameof(GetFirstEntity));
-
-            return GetEntities(queryCondition, new QueryOptions()
-            {
-                MaxRowCount = 1
-            }).First();
+            return QueryComponent.GetFirstEntity(queryCondition);
         }
 
         /// <summary>
@@ -449,9 +360,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetFirstEntity(Expression<Func<T, bool>> expression)
         {
-            _logger?.Debug(nameof(GetFirstEntity));
-
-            return GetFirstEntity(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
+            return QueryComponent.GetFirstEntity(expression);
         }
 
         /// <summary>
@@ -465,12 +374,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetFirstOrDefaultEntity(QueryCondition queryCondition = null)
         {
-            _logger?.Debug(nameof(GetFirstOrDefaultEntity));
-
-            return GetEntities(queryCondition, new QueryOptions()
-            {
-                MaxRowCount = 1
-            }).FirstOrDefault();
+            return QueryComponent.GetFirstOrDefaultEntity(queryCondition);
         }
 
         /// <summary>
@@ -484,9 +388,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public T GetFirstOrDefaultEntity(Expression<Func<T, bool>> expression)
         {
-            _logger?.Debug(nameof(GetFirstOrDefaultEntity));
-
-            return GetFirstOrDefaultEntity(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
+            return QueryComponent.GetFirstOrDefaultEntity(expression);
         }
 
         /// <summary>
@@ -500,88 +402,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool InsertEntity(T entity)
         {
-            _logger?.Debug(nameof(InsertEntity));
-
-            if (_isView &&
-                _insertProcedure == null)
-            {
-                _logger?.Warning("Trying to insert row into view without specifying a stored procedure");
-                LastErrorMessage = "Cannot insert entity into a view";
-                return false;
-            }
-
-            lock (_lock)
-            {
-                var opened = _connection.State != ConnectionState.Open;
-
-                try
-                {
-                    if (opened)
-                    {
-                        _connection.Open();
-                    }
-
-                    string commandText;
-                    if (_isView)
-                    {
-                        commandText = $"[{(_procedureSchema != null ? _procedureSchema + "].[" : "")}{_insertProcedure}]";
-                    }
-                    else
-                    {
-                        commandText = _scriptGenerator.GetInsertQuery();
-                    }
-
-                    var command = new SqlCommand(commandText, _connection);
-                    if (_currentTransaction != null)
-                    {
-                        command.Transaction = _currentTransaction;
-                    }
-
-                    if (_isView)
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                    }
-
-                    AssignParameters(entity, command);
-
-                    _logger?.Info(GenerateLoggingMessage(command));
-
-                    if (_hasIdentityColumn)
-                    {
-                        var result = command.ExecuteScalar();
-                        _primaryKeyProperty.SetValue(entity, result);
-                    }
-                    else
-                    {
-                        command.ExecuteScalar();
-                    }
-
-                    return true;
-                }
-                catch (Exception exception)
-                {
-                    _logger?.Error("Error while executing query", exception);
-                    LastErrorMessage = exception.Message;
-
-                    if (_currentTransaction != null)
-                    {
-                        _logger?.Info("Rollback transaction and closing connection");
-                        _currentTransaction.Rollback();
-                        _currentTransaction = null;
-                        _connection.Close();
-                    }
-
-                    return false;
-                }
-                finally
-                {
-                    if (opened)
-                    {
-                        _logger?.Info("Closing connection");
-                        _connection.Close();
-                    }
-                }
-            }
+            return DataManipulationComponent.InsertEntity(entity);
         }
 
         /// <summary>
@@ -595,101 +416,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool UpdateEntity(T entity)
         {
-            _logger?.Debug(nameof(UpdateEntity));
-
-            if (_isView &&
-                _updateProcedure == null)
-            {
-                _logger?.Warning("Trying to update row of view without specifying a stored procedure");
-                LastErrorMessage = "Cannot update entity of a view";
-                return false;
-            }
-
-            lock (_lock)
-            {
-                var opened = _connection.State != ConnectionState.Open;
-
-                try
-                {
-                    if (opened)
-                    {
-                        _connection.Open();
-                    }
-
-                    string commandText;
-                    if (_isView)
-                    {
-                        commandText = $"[{(_procedureSchema != null ? _procedureSchema + "].[" : "")}{_updateProcedure}]";
-                    }
-                    else
-                    {
-                        commandText = _scriptGenerator.GetUpdateQuery();
-                    }
-
-                    var command = new SqlCommand(commandText, _connection);
-                    if (_currentTransaction != null)
-                    {
-                        command.Transaction = _currentTransaction;
-                    }
-
-                    if (_isView)
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                    }
-
-                    AssignParameters(entity, command);
-
-                    _logger?.Info(GenerateLoggingMessage(command));
-
-                    command.ExecuteNonQuery();
-
-                    return true;
-                }
-                catch (Exception exception)
-                {
-                    _logger?.Error("Error while executing query", exception);
-                    LastErrorMessage = exception.Message;
-
-                    if (_currentTransaction != null)
-                    {
-                        _logger?.Info("Rollback transaction and closing connection");
-                        _currentTransaction.Rollback();
-                        _currentTransaction = null;
-                        _connection.Close();
-                    }
-
-                    return false;
-                }
-                finally
-                {
-                    if (opened)
-                    {
-                        _logger?.Info("Closing connection");
-                        _connection.Close();
-                    }
-                }
-            }
-        }
-
-        private void AssignParameters(T entity, SqlCommand command)
-        {
-            foreach (var parameter in _entityParser.GetParameters(entity))
-            {
-                var sqlParameter = new SqlParameter()
-                {
-                    ParameterName = parameter.Key,
-                    Value = parameter.Value
-                };
-
-                // Workaround für Image-datentyp
-                /*if (parameter.Key.Equals("Image"))
-                {
-                    sqlParameter.DbType = DbType.Binary;
-                    sqlParameter.SqlDbType = System.Data.SqlDbType.Image;
-                }*/
-
-                command.Parameters.Add(sqlParameter);
-            }
+            return DataManipulationComponent.UpdateEntity(entity);
         }
 
         /// <summary>
@@ -703,80 +430,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool DeleteEntity(int entityId)
         {
-            _logger?.Debug(nameof(DeleteEntity));
-
-            if (_isView &&
-                _deleteProcedure == null)
-            {
-                _logger?.Warning("Trying to delete row of view without specifying a stored procedure");
-                LastErrorMessage = "Cannot delete entity of a view";
-                return false;
-            }
-
-            lock (_lock)
-            {
-                var opened = _connection.State != ConnectionState.Open;
-
-                try
-                {
-                    if (opened)
-                    {
-                        _connection.Open();
-                    }
-
-                    string commandText;
-                    if (_isView)
-                    {
-                        commandText = $"[{(_procedureSchema != null ? _procedureSchema + "].[" : "")}{_deleteProcedure}]";
-                    }
-                    else
-                    {
-                        commandText = _scriptGenerator.GetDeleteQuery();
-                    }
-
-                    var command = new SqlCommand(commandText, _connection);
-                    if (_currentTransaction != null)
-                    {
-                        command.Transaction = _currentTransaction;
-                    }
-
-                    if (_isView)
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                    }
-
-                    command.Parameters.AddWithValue(nameof(_primaryKeyProperty.Name), entityId);
-
-                    _logger?.Info(GenerateLoggingMessage(command));
-
-                    command.ExecuteNonQuery();
-
-                    return true;
-                }
-                catch (Exception exception)
-                {
-                    _logger?.Error("Error while executing query", exception);
-                    LastErrorMessage = exception.Message;
-
-                    if (_currentTransaction != null)
-                    {
-                        _logger?.Info("Rollback transaction and closing connection");
-                        _currentTransaction.Rollback();
-                        _currentTransaction = null;
-                        _connection.Close();
-                    }
-
-                    return false;
-                }
-                finally
-                {
-                    if (opened)
-                    {
-                        _logger?.Info("Closing connection");
-                        _connection.Close();
-                    }
-                }
-            }
+            return DataManipulationComponent.DeleteEntity(entityId);
         }
 
         /// <summary>
@@ -790,69 +444,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool DeleteEntities(QueryCondition queryCondition)
         {
-            _logger?.Debug(nameof(DeleteEntities));
-
-            if (_isView)
-            {
-                _logger?.Warning("Deleting rows of view with a query condition is not supported");
-                LastErrorMessage = "Cannot delete entities of a view";
-                return false;
-            }
-
-            lock (_lock)
-            {
-                var opened = _connection.State != ConnectionState.Open;
-
-                try
-                {
-                    if (opened)
-                    {
-                        _connection.Open();
-                    }
-
-                    var parameters = new Dictionary<string, object>();
-
-                    var command = new SqlCommand(_scriptGenerator.GetDeleteQuery(parameters, queryCondition), _connection);
-                    if (_currentTransaction != null)
-                    {
-                        command.Transaction = _currentTransaction;
-                    }
-
-                    foreach (var parameter in parameters)
-                    {
-                        command.Parameters.AddWithValue(parameter.Key, parameter.Value);
-                    }
-
-                    _logger?.Info(GenerateLoggingMessage(command));
-
-                    command.ExecuteNonQuery();
-
-                    return true;
-                }
-                catch (Exception exception)
-                {
-                    _logger?.Error("Error while executing query", exception);
-                    LastErrorMessage = exception.Message;
-
-                    if (_currentTransaction != null)
-                    {
-                        _logger?.Info("Rollback transaction and closing connection");
-                        _currentTransaction.Rollback();
-                        _currentTransaction = null;
-                        _connection.Close();
-                    }
-
-                    return false;
-                }
-                finally
-                {
-                    if (opened)
-                    {
-                        _logger?.Info("Closing connection");
-                        _connection.Close();
-                    }
-                }
-            }
+            return DataManipulationComponent.DeleteEntities(queryCondition);
         }
 
         /// <summary>
@@ -866,26 +458,7 @@ namespace RobinManzl.DataAccessLayer
         /// </returns>
         public bool DeleteEntities(Expression<Func<T, bool>> expression)
         {
-            _logger?.Debug(nameof(DeleteEntities));
-
-            return DeleteEntities(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
-        }
-
-        private string GenerateLoggingMessage(SqlCommand command)
-        {
-            var message = "Execute statement: {";
-
-            message += command.CommandText;
-            message += "}";
-
-            if (command.Parameters.Count > 0)
-            {
-                message += " - {@";
-                message += string.Join(", @", command.Parameters.Cast<SqlParameter>().Select(par => par.ParameterName + " = '" + par.Value + "'"));
-                message += "}";
-            }
-
-            return message;
+            return DataManipulationComponent.DeleteEntities(expression);
         }
 
     }
