@@ -9,6 +9,7 @@ using NLog;
 using RobinManzl.DataAccessLayer.Attributes;
 using RobinManzl.DataAccessLayer.Exceptions;
 using RobinManzl.DataAccessLayer.Internal;
+using RobinManzl.DataAccessLayer.Internal.Model;
 using RobinManzl.DataAccessLayer.Query;
 
 namespace RobinManzl.DataAccessLayer
@@ -45,6 +46,8 @@ namespace RobinManzl.DataAccessLayer
         internal SqlTransaction CurrentTransaction;
 
         internal readonly PropertyInfo PrimaryKeyProperty;
+
+        internal EntityModel EntityModel;
 
         internal readonly QueryComponent<T> QueryComponent;
 
