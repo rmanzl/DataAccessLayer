@@ -21,7 +21,9 @@ namespace RobinManzl.DataAccessLayer.Internal
         {
             var entity = new T();
 
-            for (var i = 0; i < _entityModel.Columns.Count; i++)
+            _entityModel.PrimaryKeyProperty.SetValue(entity, reader.GetValue(0));
+
+            for (var i = 1; i < _entityModel.Columns.Count; i++)
             {
                 var value = reader.GetValue(i);
                 if (value == DBNull.Value)
