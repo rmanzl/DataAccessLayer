@@ -6,18 +6,19 @@
     <Authors>Robin Manzl</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>RobinManzl.DataAccessLayer</RootNamespace>
-    <Version>1.6.0</Version>
-    <AssemblyVersion>1.6.0.0</AssemblyVersion>
-    <FileVersion>1.6.0.0</FileVersion>
-    <PackageReleaseNotes>Generelles Refactoring</PackageReleaseNotes>
+    <Version>1.6.1</Version>
+    <AssemblyVersion>1.6.1.0</AssemblyVersion>
+    <FileVersion>1.6.1.0</FileVersion>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <Description>Leichtgewichtiges Framework um Daten einer Datenbank des Microsoft SQL Servers (auch Azure SQL) abzufragen und auf benutzerdefinierte Klassen zu mappen. Möglich sind alle CRUD-Operationen und auch die Abfrage von Daten aus Views wird unterstützt.</Description>
     <Copyright>Robin Manzl</Copyright>
     <NeutralLanguage>de</NeutralLanguage>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
     <PackageLicenseUrl>https://github.com/rmanzl/DataAccessLayer/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/rmanzl/DataAccessLayer</PackageProjectUrl>
     <RepositoryUrl></RepositoryUrl>
     <PackageTags>Database O/RM ADO.NET SQL AzureSQL</PackageTags>
+    <AssemblyOriginatorKeyFile>Key.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -26,7 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.5.10" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.3.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.1.0" />
   </ItemGroup>
 
 </Project>

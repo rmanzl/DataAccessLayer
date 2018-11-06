@@ -10,8 +10,6 @@ namespace RobinManzl.DataAccessLayer.Internal.Model
 
         public PropertyInfo Property { get; set; }
 
-        public bool IsPrimaryKey { get; set; }
-
     }
 
 }

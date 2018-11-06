@@ -693,7 +693,7 @@
         </member>
         <member name="T:RobinManzl.DataAccessLayer.Query.SortDirection">
             <summary>
-            Die ANgabe der Sortier-Rsichtung
+            Die Angabe der Sortier-Richtung
             </summary>
         </member>
         <member name="F:RobinManzl.DataAccessLayer.Query.SortDirection.Ascending">

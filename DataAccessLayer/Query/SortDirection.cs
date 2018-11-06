@@ -3,7 +3,7 @@ namespace RobinManzl.DataAccessLayer.Query
 {
 
     /// <summary>
-    /// Die ANgabe der Sortier-Rsichtung
+    /// Die Angabe der Sortier-Richtung
     /// </summary>
     public enum SortDirection
     {

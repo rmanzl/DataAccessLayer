@@ -7,8 +7,7 @@ using RobinManzl.DataAccessLayer.Query;
 namespace RobinManzl.DataAccessLayer.Internal
 {
 
-    internal class ScriptGenerator<T>
-        where T : new()
+    internal class ScriptGenerator
     {
 
         private readonly EntityModel _entityModel;
@@ -26,7 +25,7 @@ namespace RobinManzl.DataAccessLayer.Internal
             _entityModel = entityModel;
         }
 
-        public string GetSelectQuery()
+        private string GetSelectQuery()
         {
             if (_selectQuery == null)
             {
@@ -52,8 +51,7 @@ namespace RobinManzl.DataAccessLayer.Internal
         public string GetSelectQuery(Dictionary<string, object> parameters, QueryCondition queryCondition = null, QueryOptions queryOptions = null)
         {
             var selectQuery = GetSelectQuery();
-            if (queryOptions != null &&
-                queryOptions.MaxRowCount != null)
+            if (queryOptions?.MaxRowCount != null)
             {
                 selectQuery = string.Format(selectQuery, " TOP " + queryOptions.MaxRowCount);
             }

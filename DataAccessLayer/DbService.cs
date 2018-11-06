@@ -4,9 +4,8 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
+using System.Text;
 using NLog;
-using RobinManzl.DataAccessLayer.Attributes;
 using RobinManzl.DataAccessLayer.Internal;
 using RobinManzl.DataAccessLayer.Internal.Model;
 using RobinManzl.DataAccessLayer.Query;
@@ -24,6 +23,8 @@ namespace RobinManzl.DataAccessLayer
         where T : new()
     {
 
+        private StringBuilder _stringBuilder;
+
         internal readonly object Lock;
 
         internal readonly SqlConnection Connection;
@@ -40,7 +41,7 @@ namespace RobinManzl.DataAccessLayer
 
         internal readonly DataManipulationComponent<T> DataManipulationComponent;
 
-        internal readonly ScriptGenerator<T> ScriptGenerator;
+        internal readonly ScriptGenerator ScriptGenerator;
 
         internal readonly EntityParser<T> EntityParser;
 
@@ -72,7 +73,7 @@ namespace RobinManzl.DataAccessLayer
 
             QueryComponent = new QueryComponent<T>(this, EntityModel);
             DataManipulationComponent = new DataManipulationComponent<T>(this, EntityModel);
-            ScriptGenerator = new ScriptGenerator<T>(EntityModel);
+            ScriptGenerator = new ScriptGenerator(EntityModel);
             EntityParser = new EntityParser<T>(EntityModel);
         }
 
@@ -104,29 +105,29 @@ namespace RobinManzl.DataAccessLayer
         {
         }
 
-        private List<PropertyInfo> GetProperties()
-        {
-            var properties = typeof(T).GetRuntimeProperties();
-
-            return properties.Where(prop => prop.GetCustomAttribute<ColumnAttribute>() != null)
-                             .ToList();
-        }
-
         internal string GenerateLoggingMessage(SqlCommand command)
         {
-            var message = "Execute statement: {";
+            if (_stringBuilder == null)
+            {
+                _stringBuilder = new StringBuilder();
+            }
+            else
+            {
+                _stringBuilder.Clear();
+            }
 
-            message += command.CommandText;
-            message += "}";
+            _stringBuilder.Append("Execute statement: {");
+            _stringBuilder.Append(command.CommandText);
+            _stringBuilder.Append("}");
 
             if (command.Parameters.Count > 0)
             {
-                message += " - {@";
-                message += string.Join(", @", command.Parameters.Cast<SqlParameter>().Select(par => par.ParameterName + " = '" + par.Value + "'"));
-                message += "}";
+                _stringBuilder.Append(" - {@");
+                _stringBuilder.Append(string.Join(", @", command.Parameters.Cast<SqlParameter>().Select(par => par.ParameterName + " = '" + par.Value + "'")));
+                _stringBuilder.Append("}");
             }
 
-            return message;
+            return _stringBuilder.ToString();
         }
 
         /// <summary>
