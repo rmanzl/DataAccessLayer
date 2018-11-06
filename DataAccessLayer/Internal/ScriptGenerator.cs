@@ -31,7 +31,7 @@ namespace RobinManzl.DataAccessLayer.Internal
             {
                 var stringBuilder = new StringBuilder();
 
-                stringBuilder.Append($"SELECT{{0}} [{_entityModel.PrimaryKeyName}] [");
+                stringBuilder.Append($"SELECT{{0}} [{_entityModel.TableName}].[{_entityModel.PrimaryKeyName}], [");
                 stringBuilder.Append(_entityModel.TableName);
                 stringBuilder.Append("].[");
 

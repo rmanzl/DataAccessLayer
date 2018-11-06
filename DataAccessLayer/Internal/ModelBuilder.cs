@@ -68,18 +68,27 @@ namespace RobinManzl.DataAccessLayer.Internal
             
             foreach (var property in properties)
             {
+                var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
+
                 var primaryKeyAttribute = property.GetCustomAttribute<PrimaryKeyAttribute>();
                 if (primaryKeyAttribute != null)
                 {
                     model.PrimaryKeyProperty = property;
-                    model.PrimaryKeyName = property.Name;
+
+                    if (columnAttribute?.Name != null)
+                    {
+                        model.PrimaryKeyName = columnAttribute.Name;
+                    }
+                    else
+                    {
+                        model.PrimaryKeyName = property.Name;
+                    }
                 }
                 else
                 {
                     var columnName = property.Name;
 
-                    var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
-                    if (columnAttribute != null)
+                    if (columnAttribute?.Name != null)
                     {
                         columnName = columnAttribute.Name;
                     }
