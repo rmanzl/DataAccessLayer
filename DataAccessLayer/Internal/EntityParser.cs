@@ -23,15 +23,15 @@ namespace RobinManzl.DataAccessLayer.Internal
 
             _entityModel.PrimaryKeyProperty.SetValue(entity, reader.GetValue(0));
 
-            for (var i = 1; i < _entityModel.Columns.Count; i++)
+            for (var i = 0; i < _entityModel.Columns.Count; i++)
             {
-                var value = reader.GetValue(i);
+                var value = reader.GetValue(i + 1);
                 if (value == DBNull.Value)
                 {
                     value = null;
                 }
 
-                _entityModel.Columns[i - 1].Property.SetValue(entity, value);
+                _entityModel.Columns[i].Property.SetValue(entity, value);
             }
 
             return entity;
