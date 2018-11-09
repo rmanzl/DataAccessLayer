@@ -31,7 +31,7 @@ namespace RobinManzl.DataAccessLayer.Internal
                     value = null;
                 }
 
-                _entityModel.Columns[i].Property.SetValue(entity, value);
+                _entityModel.Columns[i - 1].Property.SetValue(entity, value);
             }
 
             return entity;
