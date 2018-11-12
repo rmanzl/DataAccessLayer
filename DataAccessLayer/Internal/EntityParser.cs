@@ -39,7 +39,10 @@ namespace RobinManzl.DataAccessLayer.Internal
         
         public Dictionary<string, object> GetParameters(T entity)
         {
-            var parameters = new Dictionary<string, object>();
+            var parameters = new Dictionary<string, object>()
+            {
+                [_entityModel.PrimaryKeyProperty.Name] = _entityModel.PrimaryKeyProperty.GetValue(entity) ?? DBNull.Value 
+            };
 
             foreach (var column in _entityModel.Columns)
             {
