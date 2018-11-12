@@ -69,7 +69,7 @@ namespace RobinManzl.DataAccessLayer.Internal
                 stringBuilder.AppendLine();
             }
 
-            if (queryOptions?.OrderByOptions != null)
+            if (queryOptions?.OrderByOptions?.Count > 0)
             {
                 stringBuilder.Append("ORDER BY ");
                 stringBuilder.AppendLine(string.Join(", ", queryOptions.OrderByOptions.Select(o => $"{o.Column} {(o.SortDirection == SortDirection.Descending ? "DESC" : "ASC")}")));
