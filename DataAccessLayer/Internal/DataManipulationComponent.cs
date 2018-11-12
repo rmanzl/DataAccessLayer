@@ -253,7 +253,7 @@ namespace RobinManzl.DataAccessLayer.Internal
                         command.CommandType = CommandType.StoredProcedure;
                     }
 
-                    command.Parameters.AddWithValue(nameof(_entityModel.PrimaryKeyProperty.Name), entityId);
+                    command.Parameters.AddWithValue(_entityModel.PrimaryKeyProperty.Name, entityId);
 
                     _dbService.Logger?.Info(_dbService.GenerateLoggingMessage(command));
 
