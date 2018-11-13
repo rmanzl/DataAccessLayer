@@ -10,8 +10,8 @@ namespace RobinManzl.DataAccessLayer.Exceptions
     public class InvalidEntityClassException : Exception
     {
         
-        internal InvalidEntityClassException()
-        : base("Specified entity class is not in the expected format. Make sure the class contains one property marked with a PrimaryKeyAttribute.")
+        internal InvalidEntityClassException(string message)
+            : base(message)
         {
         }
 

@@ -50,25 +50,18 @@ namespace RobinManzl.DataAccessLayer
         /// </summary>
         public string LastErrorMessage { get; internal set; }
 
-        /// <summary>
-        /// Erstellt eine neue Instanz eines DbServices für eine bestimmte Entity-Klasse
-        /// </summary>
-        /// <param name="connection">
-        /// Die SqlConnection, welche für die Datenbank-Verbindungen verwendet wird
-        /// </param>
-        /// <param name="logger">
-        /// Die Logger-Instanz, welche bei allen Vorgängen verwendet wird
-        /// </param>
-        public DbService(SqlConnection connection, ILogger logger = null)
+        private DbService(SqlConnection connection, ILogger logger = null, bool useNLog = false)
         {
             Lock = new object();
 
             Connection = connection;
 
-            Logger = logger;
+            Logger = logger ?? (useNLog ? new NLogWrapper(LogManager.GetCurrentClassLogger()) : null);
+            // TODO: modifiy CurrentClass Logger -> append Type-Parameter
+
             Logger?.Info($"Creating DbService for entity {typeof(T).FullName}");
 
-            ModelBuilder = new ModelBuilder(typeof(T));
+            ModelBuilder = new ModelBuilder(typeof(T), logger, useNLog);
             EntityModel = ModelBuilder.EntityModel;
 
             QueryComponent = new QueryComponent<T>(this, EntityModel);
@@ -84,10 +77,24 @@ namespace RobinManzl.DataAccessLayer
         /// Die SqlConnection, welche für die Datenbank-Verbindungen verwendet wird
         /// </param>
         /// <param name="logger">
+        /// Die Logger-Instanz, welche bei allen Vorgängen verwendet wird
+        /// </param>
+        public DbService(SqlConnection connection, ILogger logger = null)
+            : this(connection, logger, false)
+        {
+        }
+
+        /// <summary>
+        /// Erstellt eine neue Instanz eines DbServices für eine bestimmte Entity-Klasse
+        /// </summary>
+        /// <param name="connection">
+        /// Die SqlConnection, welche für die Datenbank-Verbindungen verwendet wird
+        /// </param>
+        /// <param name="logger">
         /// Die NLog-Logger-Instanz, welche bei allen Vorgängen verwendet wird
         /// </param>
         public DbService(SqlConnection connection, Logger logger)
-            : this(connection, new NLogWrapper(logger))
+            : this(connection, new NLogWrapper(logger), false)
         {
         }
 
@@ -101,7 +108,7 @@ namespace RobinManzl.DataAccessLayer
         /// Gibt an, ob eine NLog-Instanz erstellt und verwendet werden soll
         /// </param>
         public DbService(SqlConnection connection, bool useNLog)
-            : this(connection, useNLog ? new NLogWrapper(LogManager.GetCurrentClassLogger()) : null)
+            : this(connection, useNLog ? new NLogWrapper(LogManager.GetCurrentClassLogger()) : null, true)
         {
         }
 

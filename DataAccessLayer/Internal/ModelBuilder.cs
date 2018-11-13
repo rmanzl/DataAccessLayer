@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NLog;
 using RobinManzl.DataAccessLayer.Attributes;
 using RobinManzl.DataAccessLayer.Exceptions;
 using RobinManzl.DataAccessLayer.Internal.Model;
@@ -19,6 +20,10 @@ namespace RobinManzl.DataAccessLayer.Internal
             _modelCache = new Dictionary<Type, Tuple<EntityModel, ScriptGenerator>>();
         }
 
+        private readonly ILogger _logger;
+
+        private readonly bool _useNLog;
+
         private readonly Type _type;
 
         public EntityModel EntityModel
@@ -27,9 +32,15 @@ namespace RobinManzl.DataAccessLayer.Internal
             {
                 if (!_modelCache.TryGetValue(_type, out var model))
                 {
+                    _logger.Info($"Building EntityModel for type {_type.FullName}");
+
                     var entityModel = BuildEntityModel();
-                    model = Tuple.Create(entityModel, new ScriptGenerator(entityModel));
+                    model = Tuple.Create(entityModel, new ScriptGenerator(entityModel, _logger, _useNLog));
                     _modelCache[_type] = model;
+                }
+                else
+                {
+                    _logger.Info($"EntityModel for type {_type.FullName} already cached");
                 }
 
                 return model.Item1;
@@ -49,13 +60,18 @@ namespace RobinManzl.DataAccessLayer.Internal
             }
         }
 
-        public ModelBuilder(Type type)
+        public ModelBuilder(Type type, ILogger logger, bool useNLog)
         {
+            _logger = logger ?? (useNLog ? new NLogWrapper(LogManager.GetCurrentClassLogger()) : null);
+            _useNLog = useNLog;
+
             _type = type;
         }
 
         private EntityModel BuildEntityModel()
         {
+            // TODO: add logging
+
             var model = new EntityModel();
 
             TableBaseAttribute attribute = _type.GetCustomAttribute<TableAttribute>();
@@ -137,7 +153,7 @@ namespace RobinManzl.DataAccessLayer.Internal
 
             if (model.PrimaryKeyProperty == null)
             {
-                throw new InvalidEntityClassException();
+                throw new InvalidEntityClassException("Specified entity class is not in the expected format. Make sure the class contains one property marked with a PrimaryKeyAttribute.");
             }
 
             return model;

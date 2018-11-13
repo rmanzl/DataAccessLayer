@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NLog;
 using RobinManzl.DataAccessLayer.Internal.Model;
 using RobinManzl.DataAccessLayer.Query;
 
@@ -9,6 +10,8 @@ namespace RobinManzl.DataAccessLayer.Internal
 
     internal class ScriptGenerator
     {
+
+        private readonly ILogger _logger;
 
         private readonly EntityModel _entityModel;
 
@@ -20,8 +23,10 @@ namespace RobinManzl.DataAccessLayer.Internal
 
         private string _deleteQuery;
 
-        public ScriptGenerator(EntityModel entityModel)
+        public ScriptGenerator(EntityModel entityModel, ILogger logger, bool useNLog)
         {
+            _logger = logger ?? (useNLog ? new NLogWrapper(LogManager.GetCurrentClassLogger()) : null);
+
             _entityModel = entityModel;
         }
 
