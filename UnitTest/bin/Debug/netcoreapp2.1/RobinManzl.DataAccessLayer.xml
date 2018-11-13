@@ -1,0 +1,710 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RobinManzl.DataAccessLayer</name>
+    </assembly>
+    <members>
+        <member name="T:RobinManzl.DataAccessLayer.Attributes.ColumnAttribute">
+            <inheritdoc />
+            <summary>
+            Attribut, welches für die Kennzeichnung von Properties genutzt werden kann, die Teil der Tabellendefinition sind
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Attributes.ColumnAttribute.Name">
+            <summary>
+            Falls der Datenbankattributname vom Namen der zugehörigen Property abweicht, kann dieser mittels dieses Feldes angegeben werden
+            </summary>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.Attributes.ColumnAttribute.#ctor(System.String)">
+            <inheritdoc />
+            <summary>
+            Standardkonstruktor, der den Namen der Spalte angibt
+            </summary>
+            <param name="name">
+            Der Name der Spalte
+            </param>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Attributes.PrimaryKeyAttribute">
+            <inheritdoc />
+            <summary>
+            Attribut, welches für die Kennzeichnung der Primärschlüssel-Attributes einer Entitätsklasse genutzt werden kann
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Attributes.TableAttribute">
+            <inheritdoc />
+            <summary>
+            Dieses Attribute kann verwendet werden, um einen vom Klassennamen abweichenden Tabellennamen zu definieren
+            </summary>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.Attributes.TableAttribute.#ctor(System.String,System.String,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Attributes.TableBaseAttribute">
+            <inheritdoc />
+            <summary>
+            Stellt die Basis für das Table- und das View-Attribut dar
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Attributes.TableBaseAttribute.Schema">
+            <summary>
+            Gibt das verwendete Schema der Tabelle an, falls das Standardschema (dbo) verwendet wurde, kann dieses Attribute auch auf NULL gesetzt werden
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Attributes.TableBaseAttribute.Name">
+            <summary>
+            Gibt den physikalischen Tabellennamen an
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Attributes.TableBaseAttribute.HasIdentityColumn">
+            <summary>
+            Gibt an, ob das Primärschlüssel-Attribut eine Idenitäts-Spalte ist
+            </summary>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.Attributes.TableBaseAttribute.#ctor(System.String,System.String,System.Boolean)">
+            <inheritdoc />
+            <summary>
+            Standardkonstruktor, welcher alle Attribute setzt
+            </summary>
+            <param name="name">
+            Wert für den Tabellennamen
+            </param>
+            <param name="schema">
+            Schema der Tabelle
+            </param>
+            <param name="hasIdentityColumn">
+            Gibt an, ob es sich bei dem Primärschlüssel um eine Identitässpalte handelt
+            </param>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Attributes.ViewAttribute">
+            <inheritdoc />
+            <summary>
+            Dieses Attribute kann verwendet werden, um einen vom Klassennamen abweichenden Viewnamen zu definieren
+            Zusätzlich kann mithilfe dieses Attributes angegeben werden, mittels welcher Stored Procedures die CRUD-Vorgänge durchgeführt werden können
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Attributes.ViewAttribute.ProcedureSchema">
+            <summary>
+            Gibt das verwendete Schema der Stored Procedures an, falls das Standardschema (dbo) verwendet wurde, kann dieses Attribute auch auf NULL gesetzt werden
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Attributes.ViewAttribute.InsertProcedure">
+            <summary>
+            Gibt den Namen der Stored Procedure an, welche für die Anlage einer Zeile in der View verwendet werden soll
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Attributes.ViewAttribute.UpdateProcedure">
+            <summary>
+            Gibt den Namen der Stored Procedure an, welche für die Änderung einer Zeile in der View verwendet werden soll
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Attributes.ViewAttribute.DeleteProcedure">
+            <summary>
+            Gibt den Namen der Stored Procedure an, welche für das Löschen einer Zeile in der View verwendet werden soll
+            </summary>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.Attributes.ViewAttribute.#ctor(System.String,System.String,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.DbService`1">
+            <summary>
+            Diese Klasse kann verwendet werden, um Daten aus einer Datenbank auszulesen und zu ändern
+            </summary>
+            <typeparam name="T">
+            Die Klasse gibt an, für welche Tabelle Daten ausgelesen werden sollen
+            </typeparam>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.DbService`1.LastErrorMessage">
+            <summary>
+            Beinhaltet die zuletzt generierte Fehlermeldung, sofern eine existiert
+            </summary>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.#ctor(System.Data.SqlClient.SqlConnection,RobinManzl.DataAccessLayer.ILogger)">
+            <summary>
+            Erstellt eine neue Instanz eines DbServices für eine bestimmte Entity-Klasse
+            </summary>
+            <param name="connection">
+            Die SqlConnection, welche für die Datenbank-Verbindungen verwendet wird
+            </param>
+            <param name="logger">
+            Die Logger-Instanz, welche bei allen Vorgängen verwendet wird
+            </param>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.#ctor(System.Data.SqlClient.SqlConnection,NLog.Logger)">
+            <summary>
+            Erstellt eine neue Instanz eines DbServices für eine bestimmte Entity-Klasse
+            </summary>
+            <param name="connection">
+            Die SqlConnection, welche für die Datenbank-Verbindungen verwendet wird
+            </param>
+            <param name="logger">
+            Die NLog-Logger-Instanz, welche bei allen Vorgängen verwendet wird
+            </param>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.#ctor(System.Data.SqlClient.SqlConnection,System.Boolean)">
+            <summary>
+            Erstellt eine neue Instanz eines DbServices für eine bestimmte Entity-Klasse
+            </summary>
+            <param name="connection">
+            Die SqlConnection, welche für die Datenbank-Verbindungen verwendet wird
+            </param>
+            <param name="useNLog">
+            Gibt an, ob eine NLog-Instanz erstellt und verwendet werden soll
+            </param>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.BeginTransaction(System.Data.SqlClient.SqlTransaction)">
+            <summary>
+            Startet eine neue Transaktion oder übernimmt die angegebene Transaktion
+            </summary>
+            <param name="transaction">
+            Falls bereits eine Transaktion gestartet wurde, kann sie durch diesen Parameter übergeben werden
+            </param>
+            <returns>
+            Gibt die Transaktion zurück
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.RemoveTransaction">
+            <summary>
+            Entfernt die aktuelle Transaktion aus diesem DbService
+            </summary>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetEntities(RobinManzl.DataAccessLayer.Query.QueryCondition,RobinManzl.DataAccessLayer.Query.QueryOptions)">
+            <summary>
+            Führt eine Abfrage gegen die Tabelle aus
+            </summary>
+            <param name="queryCondition">
+            Spezifiziert die WHERE-Klausel der Abfrage
+            </param>
+            <param name="options">
+            Kann verwendet werden, um Optionen für die Abfrage anzugeben
+            </param>
+            <returns>
+            Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetEntities(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}},RobinManzl.DataAccessLayer.Query.QueryOptions)">
+            <summary>
+            Führt eine Abfrage gegen die Tabelle aus
+            </summary>
+            <param name="expression">
+            Spezifiziert die WHERE-Klausel der Abfrage
+            </param>
+            <param name="options">
+            Kann verwendet werden, um Optionen für die Abfrage anzugeben
+            </param>
+            <returns>
+            Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetEntities(RobinManzl.DataAccessLayer.Query.QueryOptions)">
+            <summary>
+            Führt eine Abfrage gegen die Tabelle aus
+            </summary>
+            <param name="options">
+            Kann verwendet werden, um Optionen für die Abfrage anzugeben
+            </param>
+            <returns>
+            Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetEntityById(System.Int32)">
+            <summary>
+            Frägt eine Zeile der Tabelle anhand ihres Primärschlüssels ab
+            </summary>
+            <param name="id">
+            Der Wert des Primärschlüsselss
+            </param>
+            <returns>
+            Gibt die gefundene Zeile als Objekt zurück
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.TryGetEntityById(System.Int32)">
+            <summary>
+            Frägt eine Zeile der Tabelle anhand ihres Primärschlüssels ab, falls diese existiert
+            </summary>
+            <param name="id">
+            Der Wert des Primärschlüsselss
+            </param>
+            <returns>
+            Gibt die gefundene Zeile als Objekt oder NULL zurück
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetTopNEntities(System.Int32,RobinManzl.DataAccessLayer.Query.QueryCondition)">
+            <summary>
+            Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die ersten <code>count</code> Zeilen zurück
+            </summary>
+            <param name="count">
+            Gibt an, wieviele Zeilen maximal vom Datenbankserver abgefragt werden sollen
+            </param>
+            <param name="queryCondition">
+            Spezifiziert die WHERE-Klausel der Abfrage
+            </param>
+            <returns>
+            Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetTopNEntities(System.Int32,System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+            <summary>
+            Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die ersten <code>count</code> Zeilen zurück
+            </summary>
+            <param name="count">
+            Gibt an, wieviele Zeilen maximal vom Datenbankserver abgefragt werden sollen
+            </param>
+            <param name="expression">
+            Spezifiziert die WHERE-Klausel der Abfrage
+            </param>
+            <returns>
+            Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetFirstEntity(RobinManzl.DataAccessLayer.Query.QueryCondition)">
+            <summary>
+            Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die erste Zeile zurück
+            </summary>
+            <param name="queryCondition">
+            Spezifiziert die WHERE-Klausel der Abfrage
+            </param>
+            <returns>
+            Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetFirstEntity(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+            <summary>
+            Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die erste Zeile zurück
+            </summary>
+            <param name="expression">
+            Spezifiziert die WHERE-Klausel der Abfrage
+            </param>
+            <returns>
+            Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetFirstOrDefaultEntity(RobinManzl.DataAccessLayer.Query.QueryCondition)">
+            <summary>
+            Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die erste Zeile zurück
+            </summary>
+            <param name="queryCondition">
+            Spezifiziert die WHERE-Klausel der Abfrage
+            </param>
+            <returns>
+            Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetFirstOrDefaultEntity(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+            <summary>
+            Diese Methode kapselt die <code>GetEntities</code>-Methode und gibt nur die erste Zeile zurück
+            </summary>
+            <param name="expression">
+            Spezifiziert die WHERE-Klausel der Abfrage
+            </param>
+            <returns>
+            Gibt eine Liste an Objekten zurück, welche vom Datenbankserver zurückgegeben wurden
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.InsertEntity(`0)">
+            <summary>
+            Diese Methode kann verwendet werden, um eine Zeile in der Datenbank anzulegen
+            </summary>
+            <param name="entity">
+            Das anzulegende Objekt
+            </param>
+            <returns>
+            Gibt an, ob der Vorgang erfolgreich war
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.UpdateEntity(`0)">
+            <summary>
+            Diese Methode kann verwendet werden, um eine Zeile in der Datenbank anzupassen
+            </summary>
+            <param name="entity">
+            Das anzupassende Objekt
+            </param>
+            <returns>
+            Gibt an, ob der Vorgang erfolgreich war
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.DeleteEntity(System.Int32)">
+            <summary>
+            Diese Methode kann verwendet werden, um eine Zeile in der Datenbank zu löschen
+            </summary>
+            <param name="entityId">
+            Der Wert des Primärschlüssels des zu löschenden Objektes
+            </param>
+            <returns>
+            Gibt an, ob der Vorgang erfolgreich war
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.DeleteEntities(RobinManzl.DataAccessLayer.Query.QueryCondition)">
+            <summary>
+            Diese Methode kann verwendet werden, um Zeilen anhang einer QueryCondition in der Datenbank zu löschen
+            </summary>
+            <param name="queryCondition">
+            Die QueryConition, die für die WHERE-Klausel verwendet werden soll
+            </param>
+            <returns>
+            Gibt an, ob der Vorgang erfolgreich war
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.DeleteEntities(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+            <summary>
+            Diese Methode kann verwendet werden, um Zeilen anhang einer Expression in der Datenbank zu löschen
+            </summary>
+            <param name="expression">
+            Die Expression, die für die WHERE-Klausel verwendet werden soll
+            </param>
+            <returns>
+            Gibt an, ob der Vorgang erfolgreich war
+            </returns>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Exceptions.InvalidEntityClassException">
+            <inheritdoc />
+            <summary>
+            Exception, welche auftritt, wenn eine Entitätsklasse ohne Primärschlüsselattribute angegeben wurde
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.ILogger">
+            <summary>
+            Schnittstelle, um einen Logging-Mechanismus dem <code>DbService</code> hinzuzufügen
+            </summary>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.ILogger.Debug(System.String)">
+            <summary>
+            Loggt eine Nachricht unter dem Log-Level DEBUG
+            </summary>
+            <param name="message">
+            Die zu loggende Nachricht
+            </param>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.ILogger.Info(System.String)">
+            <summary>
+            Loggt eine Nachricht unter dem Log-Level INFO
+            </summary>
+            <param name="message">
+            Die zu loggende Nachricht
+            </param>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.ILogger.Warning(System.String,System.Exception)">
+            <summary>
+            Loggt eine Nachricht unter dem Log-Level WARN
+            </summary>
+            <param name="message">
+            Die zu loggende Nachricht
+            </param>
+            <param name="exception">
+            Die aufgetretene Ausnahme
+            </param>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.ILogger.Error(System.String,System.Exception)">
+            <summary>
+            Loggt eine Nachricht unter dem Log-Level ERROR
+            </summary>
+            <param name="message">
+            Die zu loggende Nachricht
+            </param>
+            <param name="exception">
+            Die aufgetretene Ausnahme
+            </param>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.ILogger.Fatal(System.String,System.Exception)">
+            <summary>
+            Loggt eine Nachricht unter dem Log-Level FATAL
+            </summary>
+            <param name="message">
+            Die zu loggende Nachricht
+            </param>
+            <param name="exception">
+            Die aufgetretene Ausnahme
+            </param>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.ColumnCompareCondition">
+            <inheritdoc />
+            <summary>
+            Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit einer anderen Spalte dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ColumnCompareCondition.ConditionType">
+            <inheritdoc />
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ColumnCompareCondition.FirstAttributeName">
+            <summary>
+            Die Angabe des ersten Spaltennamens
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ColumnCompareCondition.SecondAttributeName">
+            <summary>
+            Die Angabe des zweiten Spaltennamens
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ColumnCompareCondition.Operator">
+            <summary>
+            Der Vergleichsoperator, der für einen Wert- oder Spaltenvergleich verwendet werden soll
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.IsInCondition">
+            <inheritdoc />
+            <summary>
+            Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit angegebenen Werten dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.IsInCondition.ConditionType">
+            <inheritdoc />
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.IsInCondition.AttributeName">
+            <summary>
+            Die Angabe des Spaltennamens
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.IsInCondition.Values">
+            <summary>
+            Die Angabe der Werte, auf welche geprüft werden soll
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.IsInCondition.ShouldBeIn">
+            <summary>
+            Gibt an, ob der Sapltenwert in den angebenen Werten enthalten sein muss, oder ob er nicht enthalten sein darf
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.LogicalCondition">
+            <inheritdoc />
+            <summary>
+            Stellt eine logische Verkettung zweier Abfrageknoten dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.LogicalCondition.ConditionType">
+            <inheritdoc />
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.LogicalCondition.LeftCondition">
+            <summary>
+            Der linke Knoten der Verkettung
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.LogicalCondition.RightCondition">
+            <summary>
+            Der rechte Knoten der Verkettung
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.LogicalCondition.LogicalOperator">
+            <summary>
+            Der logische Operator, welcher für die Verkettung verwendet werden soll
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.NullCompareCondition">
+            <inheritdoc />
+            <summary>
+            Stellt eine Bedingung mit einem Wertvergleich einer Spalte auf NULL dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.NullCompareCondition.ConditionType">
+            <inheritdoc />
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.NullCompareCondition.AttributeName">
+            <summary>
+            Die Angabe des Spaltennamens
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.NullCompareCondition.ShouldBeNull">
+            <summary>
+            Gibt an, ob der Wert der Spalte auf NULL oder NOT NULL geprüft werden soll
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.SeriesCondition">
+            <inheritdoc />
+            <summary>
+            Stellt eine logische Verkettung mehrerer Abfrageknoten dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.SeriesCondition.ConditionType">
+            <inheritdoc />
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.SeriesCondition.Conditions">
+            <summary>
+            Der Knoten, welche für eine Verkettung verwendet werden sollen
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.SeriesCondition.LogicalOperator">
+            <summary>
+            Der logische Operator, welcher für die Verkettung verwendet werden soll
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Conditions.ValueCompareCondition">
+            <inheritdoc />
+            <summary>
+            Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit einem angegebenen Wert dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ValueCompareCondition.ConditionType">
+            <inheritdoc />
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ValueCompareCondition.AttributeName">
+            <summary>
+            Die Angabe des Spaltennamens
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ValueCompareCondition.Value">
+            <summary>
+            Die Angabe des Wertes
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.Conditions.ValueCompareCondition.Operator">
+            <summary>
+            Der Vergleichsoperator, der für einen Wert- oder Spaltenvergleich verwendet werden soll
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.ConditionType">
+            <summary>
+            Der Typ der Abfragenknoten
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.ConditionType.ValueCompare">
+            <summary>
+            Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit einem angegebenen Wert dar
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.ConditionType.NullCompare">
+            <summary>
+            Stellt eine Bedingung mit einem Wertvergleich einer Spalte auf NULL dar
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.ConditionType.ColumnCompare">
+            <summary>
+            Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit einer anderen Spalte dar
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.ConditionType.IsIn">
+            <summary>
+            Stellt eine Bedingung mit einem Wertvergleich einer Spalte mit angegebenen Werten dar
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.ConditionType.Concatenation">
+            <summary>
+            Stellt eine logische Verknüpfung mehrerer Abfrageknoten dar
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.LogicalOperator">
+            <summary>
+            Gibt den logischen Operatoren an, der für eine Verkettung mehrerer Knoten verwendet werden soll
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.LogicalOperator.And">
+            <summary>
+            Stellt den logischen Operatoren AND dar
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.LogicalOperator.Or">
+            <summary>
+            Stellt den logischen Operatoren OR dar
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.Operator">
+            <summary>
+            Der Vergleichsoperator, der für einen Wert- oder Spaltenvergleich verwendet werden soll
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.Operator.Equals">
+            <summary>
+            Prüft auf Gleichheit
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.Operator.GreaterThan">
+            <summary>
+            Größer als
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.Operator.GreaterThanOrEquals">
+            <summary>
+            Größer als oder gleich groß
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.Operator.SmallerThan">
+            <summary>
+            Kleiner als
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.Operator.SmallerThanOrEquals">
+            <summary>
+            Kleiner als oder gleich groß
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.Operator.NotEquals">
+            <summary>
+            Prüft auf Ungleichheit
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.Operator.Like">
+            <summary>
+            Verwendet den Like-Operator
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.Operator.NotLike">
+            <summary>
+            Verwendet den Not-Like-Operator
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.OrderByOption">
+            <summary>
+            Klasse, die verwendet werden kann, um die Sortierung der Zeilen bei Abfragen zu bestimmen
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.OrderByOption.Column">
+            <summary>
+            Kann zur Festlegung des Sortier-Attributes verwendet werden
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.OrderByOption.SortDirection">
+            <summary>
+            Wird verwendet, um die Sortier-Richtung zu spezifizieren
+            </summary>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.Query.OrderByOption.#ctor">
+            <summary>
+            Standard-Konstruktor
+            </summary>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.Query.OrderByOption.#ctor(System.String,RobinManzl.DataAccessLayer.Query.SortDirection)">
+            <summary>
+            Konstrukor zur Erstellung einer OrderByOption-Instanz
+            </summary>
+            <param name="column">Die Angabe des Spaltennamens</param>
+            <param name="sortDirection">Die Angabe der Sortier-Richtung</param>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.QueryCondition">
+            <summary>
+            Stellt die Basis aller Abfragemöglichkeiten dar
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.QueryCondition.ConditionType">
+            <summary>
+            Gibt den Typ der Bedingung an
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.QueryOptions">
+            <summary>
+            Diese Klasse kann verwendet werden, um der <code>GetEntities</code>-Methode der <code>DbService</code>-Klasse Optionen anzugeben
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.MaxRowCount">
+            <summary>
+            Die Angabe der maximal zurückzuliefernden Zeilen
+            </summary>
+        </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderByOptions">
+            <summary>
+            Wird zur Angabe der Sortier-Optionen verwendet
+            </summary>
+        </member>
+        <member name="T:RobinManzl.DataAccessLayer.Query.SortDirection">
+            <summary>
+            Die Angabe der Sortier-Richtung
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.SortDirection.Ascending">
+            <summary>
+            Aufsteigende Sortierung
+            </summary>
+        </member>
+        <member name="F:RobinManzl.DataAccessLayer.Query.SortDirection.Descending">
+            <summary>
+            Absteigende Sortierung
+            </summary>
+        </member>
+    </members>
+</doc>
