@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using RobinManzl.DataAccessLayer.Attributes;
@@ -8,26 +9,59 @@ using RobinManzl.DataAccessLayer.Internal.Model;
 namespace RobinManzl.DataAccessLayer.Internal
 {
 
-    internal class ModelBuilder<T>
-        where T : new()
+    internal class ModelBuilder
     {
 
-        private List<PropertyInfo> GetProperties()
-        {
-            var properties = typeof(T).GetRuntimeProperties();
+        private static readonly Dictionary<Type, Tuple<EntityModel, ScriptGenerator>> _modelCache;
 
-            return properties.Where(prop => prop.GetCustomAttribute<ColumnAttribute>() != null)
-                .ToList();
+        static ModelBuilder()
+        {
+            _modelCache = new Dictionary<Type, Tuple<EntityModel, ScriptGenerator>>();
         }
 
-        public EntityModel BuildEntityModel()
+        private readonly Type _type;
+
+        public EntityModel EntityModel
+        {
+            get
+            {
+                if (!_modelCache.TryGetValue(_type, out var model))
+                {
+                    var entityModel = BuildEntityModel();
+                    model = Tuple.Create(entityModel, new ScriptGenerator(entityModel));
+                    _modelCache[_type] = model;
+                }
+
+                return model.Item1;
+            }
+        }
+
+        public ScriptGenerator ScriptGenerator
+        {
+            get
+            {
+                if (!_modelCache.TryGetValue(_type, out var model))
+                {
+                    throw new Exception($"ScriptGenerator for type {_type.FullName} missing");
+                }
+
+                return model.Item2;
+            }
+        }
+
+        public ModelBuilder(Type type)
+        {
+            _type = type;
+        }
+
+        private EntityModel BuildEntityModel()
         {
             var model = new EntityModel();
 
-            TableBaseAttribute attribute = typeof(T).GetCustomAttribute<TableAttribute>();
+            TableBaseAttribute attribute = _type.GetCustomAttribute<TableAttribute>();
             if (attribute == null)
             {
-                attribute = typeof(T).GetCustomAttribute<ViewAttribute>();
+                attribute = _type.GetCustomAttribute<ViewAttribute>();
             }
 
             model.HasIdentityColumn = attribute?.HasIdentityColumn ?? true;
@@ -55,12 +89,12 @@ namespace RobinManzl.DataAccessLayer.Internal
                 }
                 else
                 {
-                    model.TableName += typeof(T).Name;
+                    model.TableName += _type.Name;
                 }
             }
             else
             {
-                model.TableName = typeof(T).Name;
+                model.TableName = _type.Name;
             }
 
             var properties = GetProperties();
@@ -107,6 +141,14 @@ namespace RobinManzl.DataAccessLayer.Internal
             }
 
             return model;
+        }
+
+        private List<PropertyInfo> GetProperties()
+        {
+            var properties = _type.GetRuntimeProperties();
+
+            return properties.Where(prop => prop.GetCustomAttribute<ColumnAttribute>() != null)
+                .ToList();
         }
 
     }

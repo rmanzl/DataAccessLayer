@@ -35,7 +35,7 @@ namespace RobinManzl.DataAccessLayer
 
         internal EntityModel EntityModel;
 
-        internal readonly ModelBuilder<T> ModelBuilder;
+        internal readonly ModelBuilder ModelBuilder;
 
         internal readonly QueryComponent<T> QueryComponent;
 
@@ -68,12 +68,12 @@ namespace RobinManzl.DataAccessLayer
             Logger = logger;
             Logger?.Info($"Creating DbService for entity {typeof(T).FullName}");
 
-            ModelBuilder = new ModelBuilder<T>();
-            EntityModel = ModelBuilder.BuildEntityModel();
+            ModelBuilder = new ModelBuilder(typeof(T));
+            EntityModel = ModelBuilder.EntityModel;
 
             QueryComponent = new QueryComponent<T>(this, EntityModel);
             DataManipulationComponent = new DataManipulationComponent<T>(this, EntityModel);
-            ScriptGenerator = new ScriptGenerator(EntityModel);
+            ScriptGenerator = ModelBuilder.ScriptGenerator;
             EntityParser = new EntityParser<T>(EntityModel);
         }
 
