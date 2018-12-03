@@ -13,11 +13,11 @@ namespace RobinManzl.DataAccessLayer.Internal
     internal class ModelBuilder
     {
 
-        private static readonly Dictionary<Type, Tuple<EntityModel, ScriptGenerator>> _modelCache;
+        private static readonly Dictionary<Type, Tuple<EntityModel, ScriptGenerator>> ModelCache;
 
         static ModelBuilder()
         {
-            _modelCache = new Dictionary<Type, Tuple<EntityModel, ScriptGenerator>>();
+            ModelCache = new Dictionary<Type, Tuple<EntityModel, ScriptGenerator>>();
         }
 
         private readonly ILogger _logger;
@@ -30,13 +30,13 @@ namespace RobinManzl.DataAccessLayer.Internal
         {
             get
             {
-                if (!_modelCache.TryGetValue(_type, out var model))
+                if (!ModelCache.TryGetValue(_type, out var model))
                 {
                     _logger.Info($"Building EntityModel for type {_type.FullName}");
 
                     var entityModel = BuildEntityModel();
                     model = Tuple.Create(entityModel, new ScriptGenerator(entityModel, _logger, _useNLog));
-                    _modelCache[_type] = model;
+                    ModelCache[_type] = model;
                 }
                 else
                 {
@@ -51,7 +51,7 @@ namespace RobinManzl.DataAccessLayer.Internal
         {
             get
             {
-                if (!_modelCache.TryGetValue(_type, out var model))
+                if (!ModelCache.TryGetValue(_type, out var model))
                 {
                     throw new Exception($"ScriptGenerator for type {_type.FullName} missing");
                 }

@@ -9,7 +9,7 @@
     <Version>1.7.1</Version>
     <AssemblyVersion>1.7.1.0</AssemblyVersion>
     <FileVersion>1.7.1.0</FileVersion>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>Logging erweitert</PackageReleaseNotes>
     <Description>Leichtgewichtiges Framework um Daten einer Datenbank des Microsoft SQL Servers (auch Azure SQL) abzufragen und auf benutzerdefinierte Klassen zu mappen. Möglich sind alle CRUD-Operationen und auch die Abfrage von Daten aus Views wird unterstützt.</Description>
     <Copyright>Robin Manzl</Copyright>
     <NeutralLanguage>de</NeutralLanguage>
