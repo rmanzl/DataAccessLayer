@@ -32,7 +32,7 @@ namespace RobinManzl.DataAccessLayer.Internal
             {
                 if (!ModelCache.TryGetValue(_type, out var model))
                 {
-                    _logger.Info($"Building EntityModel for type {_type.FullName}");
+                    _logger?.Info($"Building EntityModel for type {_type.FullName}");
 
                     var entityModel = BuildEntityModel();
                     model = Tuple.Create(entityModel, new ScriptGenerator(entityModel, _logger, _useNLog));
@@ -40,7 +40,7 @@ namespace RobinManzl.DataAccessLayer.Internal
                 }
                 else
                 {
-                    _logger.Info($"EntityModel for type {_type.FullName} already cached");
+                    _logger?.Info($"EntityModel for type {_type.FullName} already cached");
                 }
 
                 return model.Item1;
