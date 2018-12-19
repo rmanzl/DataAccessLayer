@@ -686,6 +686,11 @@
             Die Angabe der maximal zurückzuliefernden Zeilen
             </summary>
         </member>
+        <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.SkipRowCount">
+            <summary>
+            Die Angabe der zu überspringenden Zeilen
+            </summary>
+        </member>
         <member name="P:RobinManzl.DataAccessLayer.Query.QueryOptions.OrderByOptions">
             <summary>
             Wird zur Angabe der Sortier-Optionen verwendet

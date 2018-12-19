@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NLog;
@@ -55,8 +56,15 @@ namespace RobinManzl.DataAccessLayer.Internal
 
         public string GetSelectQuery(Dictionary<string, object> parameters, QueryCondition queryCondition = null, QueryOptions queryOptions = null)
         {
+            if (queryOptions?.SkipRowCount != null && 
+                queryOptions.OrderByOptions.Count == 0)
+            {
+                throw new ArgumentException("Missing order by clause while using skip rows feature.");
+            }
+
             var selectQuery = GetSelectQuery();
-            if (queryOptions?.MaxRowCount != null)
+            if (queryOptions?.MaxRowCount != null &&
+                queryOptions.SkipRowCount == null)
             {
                 selectQuery = string.Format(selectQuery, " TOP " + queryOptions.MaxRowCount);
             }
@@ -78,6 +86,16 @@ namespace RobinManzl.DataAccessLayer.Internal
             {
                 stringBuilder.Append("ORDER BY ");
                 stringBuilder.AppendLine(string.Join(", ", queryOptions.OrderByOptions.Select(o => $"{o.Column} {(o.SortDirection == SortDirection.Descending ? "DESC" : "ASC")}")));
+            }
+
+            if (queryOptions?.SkipRowCount != null)
+            {
+                stringBuilder.AppendLine($"OFFSET {queryOptions.SkipRowCount} ROWS");
+
+                if (queryOptions.MaxRowCount != null)
+                {
+                    stringBuilder.AppendLine($"FETCH NEXT {queryOptions.MaxRowCount} ROWS ONLY");
+                }
             }
 
             return stringBuilder.ToString();

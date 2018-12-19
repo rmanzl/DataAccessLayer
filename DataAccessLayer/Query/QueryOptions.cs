@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace RobinManzl.DataAccessLayer.Query
 {
@@ -14,6 +13,11 @@ namespace RobinManzl.DataAccessLayer.Query
         /// Die Angabe der maximal zurückzuliefernden Zeilen
         /// </summary>
         public int? MaxRowCount { get; set; }
+
+        /// <summary>
+        /// Die Angabe der zu überspringenden Zeilen
+        /// </summary>
+        public int? SkipRowCount { get; set; }
 
         /// <summary>
         /// Wird zur Angabe der Sortier-Optionen verwendet
