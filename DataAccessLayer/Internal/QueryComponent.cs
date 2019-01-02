@@ -194,6 +194,80 @@ namespace RobinManzl.DataAccessLayer.Internal
             return GetFirstOrDefaultEntity(ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }
 
+        public TValue GetMax<TValue>(string attributeName, QueryCondition queryCondition = null)
+            where TValue : struct
+        {
+            lock (_dbService.Lock)
+            {
+                _dbService.Logger?.Debug(nameof(GetMax));
+
+                var opened = _dbService.Connection.State != ConnectionState.Open;
+
+                if (opened)
+                {
+                    _dbService.Logger?.Info("Opening connection");
+                    _dbService.Connection.Open();
+                }
+
+                try
+                {
+                    string query;
+                    var parameters = new Dictionary<string, object>();
+
+                    if (queryCondition != null)
+                    {
+                        query = _dbService.ScriptGenerator.GetSelectMaxQuery(attributeName, parameters, queryCondition);
+                    }
+                    else
+                    {
+                        query = _dbService.ScriptGenerator.GetSelectMaxQuery(attributeName, parameters);
+                    }
+
+                    var command = new SqlCommand(query, _dbService.Connection);
+                    if (_dbService.CurrentTransaction != null)
+                    {
+                        command.Transaction = _dbService.CurrentTransaction;
+                    }
+
+                    foreach (var parameter in parameters)
+                    {
+                        command.Parameters.AddWithValue(parameter.Key, parameter.Value);
+                    }
+
+                    _dbService.Logger?.Info(_dbService.GenerateLoggingMessage(command));
+
+                    var result = (TValue)command.ExecuteScalar();
+
+                    _dbService.Logger?.Info("Returned value rows from database");
+
+                    return result;
+                }
+                catch (Exception exception)
+                {
+                    _dbService.Logger?.Error("Error while executing query", exception);
+                    _dbService.LastErrorMessage = exception.Message;
+
+                    if (_dbService.CurrentTransaction != null)
+                    {
+                        _dbService.Logger?.Info("Rollback transaction and closing connection");
+                        _dbService.CurrentTransaction.Rollback();
+                        _dbService.CurrentTransaction = null;
+                        _dbService.Connection.Close();
+                    }
+
+                    throw;
+                }
+                finally
+                {
+                    if (opened)
+                    {
+                        _dbService.Logger?.Info("Closing connection");
+                        _dbService.Connection.Close();
+                    }
+                }
+            }
+        }
+
     }
 
 }

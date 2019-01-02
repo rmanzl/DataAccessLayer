@@ -423,6 +423,21 @@ namespace RobinManzl.DataAccessLayer
             return DataManipulationComponent.DeleteEntities(expression);
         }
 
+        /// <summary>
+        /// Diese Methode kann verwendet werden, um den maximalen Wert der angegebenen Spalte zu ermitteln
+        /// </summary>
+        /// <param name="attributeName">
+        /// Das Attribut, in welchem gesucht werden soll
+        /// </param>
+        /// <returns>
+        /// Gibt den maximalen Wert zurück
+        /// </returns>
+        public TValue GetMax<TValue>(string attributeName)
+            where TValue : struct
+        {
+            return QueryComponent.GetMax<TValue>(attributeName);
+        }
+
     }
 
 }

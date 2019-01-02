@@ -196,6 +196,26 @@ namespace RobinManzl.DataAccessLayer.Internal
             return stringBuilder.ToString();
         }
 
+        public string GetSelectMaxQuery(string attributeName, Dictionary<string, object> parameters, QueryCondition queryCondition = null)
+        {
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.AppendLine($"SELECT MAX([{_entityModel.TableName}].[{attributeName}])");
+
+            stringBuilder.Append("FROM [");
+            stringBuilder.Append(_entityModel.TableName);
+            stringBuilder.AppendLine("]");
+
+            if (queryCondition != null)
+            {
+                stringBuilder.Append("WHERE ");
+                queryCondition.GenerateConditionString(stringBuilder, parameters);
+                stringBuilder.AppendLine();
+            }
+
+            return stringBuilder.ToString();
+        }
+
     }
 
 }

@@ -355,6 +355,17 @@
             Gibt an, ob der Vorgang erfolgreich war
             </returns>
         </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetMax``1(System.String)">
+            <summary>
+            Diese Methode kann verwendet werden, um den maximalen Wert der angegebenen Spalte zu ermitteln
+            </summary>
+            <param name="attributeName">
+            Das Attribut, in welchem gesucht werden soll
+            </param>
+            <returns>
+            Gibt den maximalen Wert zurück
+            </returns>
+        </member>
         <member name="T:RobinManzl.DataAccessLayer.Exceptions.InvalidEntityClassException">
             <inheritdoc />
             <summary>
