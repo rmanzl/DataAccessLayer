@@ -268,6 +268,12 @@ namespace RobinManzl.DataAccessLayer.Internal
             }
         }
 
+        public TValue GetMax<TValue>(string attributeName, Expression<Func<T, bool>> expression = null)
+            where TValue : struct 
+        {
+            return GetMax<TValue>(attributeName, ExpressionConverter.ToQueryCondition(expression, typeof(T)));
+        }
+
     }
 
 }

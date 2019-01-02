@@ -429,13 +429,34 @@ namespace RobinManzl.DataAccessLayer
         /// <param name="attributeName">
         /// Das Attribut, in welchem gesucht werden soll
         /// </param>
+        /// <param name="queryCondition">
+        /// Die QueryConition, die für die WHERE-Klausel verwendet werden soll
+        /// </param>
         /// <returns>
         /// Gibt den maximalen Wert zurück
         /// </returns>
-        public TValue GetMax<TValue>(string attributeName)
+        public TValue GetMax<TValue>(string attributeName, QueryCondition queryCondition = null)
             where TValue : struct
         {
-            return QueryComponent.GetMax<TValue>(attributeName);
+            return QueryComponent.GetMax<TValue>(attributeName, queryCondition);
+        }
+
+        /// <summary>
+        /// Diese Methode kann verwendet werden, um den maximalen Wert der angegebenen Spalte zu ermitteln
+        /// </summary>
+        /// <param name="attributeName">
+        /// Das Attribut, in welchem gesucht werden soll
+        /// </param>
+        /// <param name="expression">
+        /// Die Expression, die für die WHERE-Klausel verwendet werden soll
+        /// </param>
+        /// <returns>
+        /// Gibt den maximalen Wert zurück
+        /// </returns>
+        public TValue GetMax<TValue>(string attributeName, Expression<Func<T, bool>> expression)
+            where TValue : struct
+        {
+            return QueryComponent.GetMax<TValue>(attributeName, expression);
         }
 
     }

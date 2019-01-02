@@ -355,12 +355,29 @@
             Gibt an, ob der Vorgang erfolgreich war
             </returns>
         </member>
-        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetMax``1(System.String)">
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetMax``1(System.String,RobinManzl.DataAccessLayer.Query.QueryCondition)">
             <summary>
             Diese Methode kann verwendet werden, um den maximalen Wert der angegebenen Spalte zu ermitteln
             </summary>
             <param name="attributeName">
             Das Attribut, in welchem gesucht werden soll
+            </param>
+            <param name="queryCondition">
+            Die QueryConition, die für die WHERE-Klausel verwendet werden soll
+            </param>
+            <returns>
+            Gibt den maximalen Wert zurück
+            </returns>
+        </member>
+        <member name="M:RobinManzl.DataAccessLayer.DbService`1.GetMax``1(System.String,System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+            <summary>
+            Diese Methode kann verwendet werden, um den maximalen Wert der angegebenen Spalte zu ermitteln
+            </summary>
+            <param name="attributeName">
+            Das Attribut, in welchem gesucht werden soll
+            </param>
+            <param name="expression">
+            Die Expression, die für die WHERE-Klausel verwendet werden soll
             </param>
             <returns>
             Gibt den maximalen Wert zurück
