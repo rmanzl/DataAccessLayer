@@ -195,7 +195,6 @@ namespace RobinManzl.DataAccessLayer.Internal
         }
 
         public TValue GetMax<TValue>(string attributeName, QueryCondition queryCondition = null)
-            where TValue : struct
         {
             lock (_dbService.Lock)
             {
@@ -236,11 +235,16 @@ namespace RobinManzl.DataAccessLayer.Internal
 
                     _dbService.Logger?.Info(_dbService.GenerateLoggingMessage(command));
 
-                    var result = (TValue)command.ExecuteScalar();
+                    var result = command.ExecuteScalar();
+
+                    if (result == DBNull.Value)
+                    {
+                        result = null;
+                    }
 
                     _dbService.Logger?.Info("Returned value rows from database");
 
-                    return result;
+                    return (TValue)result;
                 }
                 catch (Exception exception)
                 {
@@ -269,7 +273,6 @@ namespace RobinManzl.DataAccessLayer.Internal
         }
 
         public TValue GetMax<TValue>(string attributeName, Expression<Func<T, bool>> expression = null)
-            where TValue : struct 
         {
             return GetMax<TValue>(attributeName, ExpressionConverter.ToQueryCondition(expression, typeof(T)));
         }

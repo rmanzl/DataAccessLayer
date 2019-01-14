@@ -454,7 +454,6 @@ namespace RobinManzl.DataAccessLayer
         /// Gibt den maximalen Wert zurück
         /// </returns>
         public TValue GetMax<TValue>(string attributeName, Expression<Func<T, bool>> expression)
-            where TValue : struct
         {
             return QueryComponent.GetMax<TValue>(attributeName, expression);
         }
